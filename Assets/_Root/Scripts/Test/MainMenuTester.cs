@@ -12,6 +12,7 @@ namespace Test
         [SerializeField] private Button resetButton;
         
         private int counter;
+        
 
         private void Start()
         {

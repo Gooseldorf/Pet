@@ -45,6 +45,7 @@
 # Local IDE and OpenCode workspace state
 .idea/
 .opencode/
+/ForAgents/
 
 # Gradle cache directory
 .gradle/

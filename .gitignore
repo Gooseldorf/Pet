@@ -42,6 +42,10 @@
 # Visual Studio cache directory
 .vs/
 
+# Local IDE and OpenCode workspace state
+.idea/
+.opencode/
+
 # Gradle cache directory
 .gradle/
 

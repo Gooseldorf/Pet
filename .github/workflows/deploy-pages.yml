@@ -41,7 +41,6 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           targetPlatform: WebGL
-          buildProfile: Assets/Settings/Build Profiles/Web - Desktop - Release.asset
           buildsPath: build
 
       - name: Upload GitHub Pages artifact

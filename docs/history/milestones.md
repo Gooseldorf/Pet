@@ -17,7 +17,6 @@ Summary:
 Key artifacts:
 
 - workflow: `.github/workflows/deploy-pages.yml`
-- build profile: `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
 
 Impact:
 

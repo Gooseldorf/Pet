@@ -22,7 +22,7 @@ This is a project-layout document, not a full gameplay architecture document.
 | Path | Purpose |
 | --- | --- |
 | `Assets/_Root/` | Main authored project content |
-| `Assets/Settings/` | Shared project settings assets such as build profiles |
+| `Assets/Settings/` | Shared project settings assets |
 | `Packages/` | Unity package dependencies |
 | `ProjectSettings/` | Unity editor and project configuration |
 
@@ -49,9 +49,9 @@ This is a project-layout document, not a full gameplay architecture document.
 
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
-### Build Profiles
+### Settings Assets
 
-- `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
+- `Assets/Settings/Build Profiles/` currently exists but has no committed build profile assets.
 
 ## Current Script Notes
 
@@ -87,7 +87,6 @@ This indicates the project already has package-level support for UI, URP, input,
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `Assets/_Root/Scenes/MainMenu.unity`
 - `Assets/_Root/Prefabs/pf_MainMenuButton.prefab`
-- `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
 - `Packages/manifest.json`
 - `ProjectSettings/ProjectVersion.txt`
 

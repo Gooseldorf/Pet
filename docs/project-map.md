@@ -73,7 +73,7 @@ Current delivery path is WebGL to GitHub Pages.
 Key files:
 
 - workflow: `.github/workflows/deploy-pages.yml`
-- build profile: `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
+- Unity version: `ProjectSettings/ProjectVersion.txt`
 
 ## Unity Version
 

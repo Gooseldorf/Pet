@@ -22,7 +22,7 @@ Read this file first when you need to orient quickly.
 - Authored content currently lives primarily under `Assets/_Root/`.
 - Current delivery path is WebGL deployment to GitHub Pages.
 - The current WebGL workflow is defined in `.github/workflows/deploy-pages.yml`.
-- The current build profile path is `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`.
+- The workflow currently builds WebGL directly through `game-ci/unity-builder`.
 
 ## Source Of Truth
 

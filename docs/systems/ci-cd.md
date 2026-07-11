@@ -11,7 +11,7 @@ Current scope covers the GitHub Actions workflow that builds a WebGL player and 
 ## Source Of Truth
 
 - `.github/workflows/deploy-pages.yml`
-- `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
+- `ProjectSettings/ProjectVersion.txt`
 
 ## Current Implementation
 
@@ -49,9 +49,9 @@ The deploy job:
 Current key settings:
 
 - target platform: `WebGL`
-- build profile: `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
 - output root: `build`
 - deployed artifact path: `build/WebGL`
+- configured workflow branch trigger: `WebGLBuild`
 
 ## Required Secrets
 
@@ -68,13 +68,13 @@ The workflow currently expects the following GitHub secrets:
 - `Library` caching key currently depends on `Assets/**`, `Packages/**`, and `ProjectSettings/**`.
 - `concurrency` is configured per ref and cancels in-progress runs for the same ref.
 - GitHub Pages is currently used for the built WebGL player, not for a docs site.
+- The workflow does not currently reference a committed Unity build profile asset.
 
 ## Failure Modes
 
 Typical failure sources to check first:
 
 - invalid or missing Unity license secrets
-- wrong or moved build profile path
 - GitHub Pages permissions or environment issues
 - Unity build failures inside `game-ci/unity-builder`
 - stale cache requiring a cache key change or manual invalidation
@@ -83,7 +83,6 @@ Typical failure sources to check first:
 ## Related Files
 
 - `.github/workflows/deploy-pages.yml`
-- `Assets/Settings/Build Profiles/Web - Desktop - Release.asset`
 - `ProjectSettings/ProjectVersion.txt`
 
 ## Related Docs

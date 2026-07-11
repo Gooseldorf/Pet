@@ -1,6 +1,9 @@
 ## Architectural Priorities
 
 - Prefer the best architectural solution over the smallest diff.
+- Surface ambiguity instead of making silent assumptions.
+- Prefer the simplest design that solves the real problem.
+- Keep changes surgical; avoid unrelated cleanup or speculative abstraction.
 
 ## Project Knowledge Base
 

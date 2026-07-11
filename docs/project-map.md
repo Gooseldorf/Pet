@@ -102,8 +102,10 @@ Current state:
 | --- | --- |
 | Repository map | `docs/project-map.md` |
 | Agent navigation | `docs/ai/assistant-entrypoint.md` |
+| Local coding skills | `docs/ai/coding-skills.md` |
 | CI/CD | `docs/systems/ci-cd.md` |
 | Unity authored layout | `docs/unity/project-structure.md` |
+| Unity runtime code guidance | `docs/unity/runtime-architecture-guidelines.md` |
 | Documentation maintenance workflow | `docs/workflows/updating-docs.md` |
 | Notable project changes | `docs/history/milestones.md` |
 
@@ -111,6 +113,8 @@ Current state:
 
 - `index.md`
 - `ai/assistant-entrypoint.md`
+- `ai/coding-skills.md`
 - `ai/retrieval-map.md`
 - `systems/ci-cd.md`
 - `unity/project-structure.md`
+- `unity/runtime-architecture-guidelines.md`

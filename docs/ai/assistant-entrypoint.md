@@ -13,6 +13,7 @@ Read this file first when you need to orient quickly.
 | overall repository structure | `docs/project-map.md` |
 | CI/CD, build, or deployment | `docs/systems/ci-cd.md` |
 | Unity authored layout | `docs/unity/project-structure.md` |
+| Unity runtime code shape or coding skills | `docs/unity/runtime-architecture-guidelines.md` |
 | documentation maintenance | `docs/workflows/updating-docs.md` |
 | project history or recently established systems | `docs/history/milestones.md` |
 
@@ -23,12 +24,14 @@ Read this file first when you need to orient quickly.
 - Current delivery path is WebGL deployment to GitHub Pages.
 - The current WebGL workflow is defined in `.github/workflows/deploy-pages.yml`.
 - The workflow currently builds WebGL directly through `game-ci/unity-builder`.
+- Local AI coding skills live under `.opencode/skills/`.
 
 ## Source Of Truth
 
 - Project map: `docs/project-map.md`
 - CI/CD: `docs/systems/ci-cd.md`
 - Unity structure: `docs/unity/project-structure.md`
+- Runtime architecture: `docs/unity/runtime-architecture-guidelines.md`
 - Project rules and constraints: `AGENTS.md`
 
 ## Retrieval Notes

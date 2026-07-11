@@ -20,11 +20,24 @@ It is not a claim that the repository already contains a large established gamep
 
 The current authored runtime surface is still small.
 
-At the moment, the main authored script is:
+The project now has a minimal startup architecture built around:
 
-- `Assets/_Root/Scripts/Test/MainMenuTester.cs`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
 
-That means these guidelines are intended to shape future growth, not to describe a mature existing architecture.
+`Assets/_Root/Scripts/Test/MainMenuTester.cs` still exists, but it is a test-style script and not the architecture entry point.
+
+That means these guidelines are intended to shape future growth from a small but real bootstrap/composition-root foundation.
+
+## Current Startup Shape
+
+- `Bootstrap.unity` is the startup scene in `ProjectSettings/EditorBuildSettings.asset`
+- `GlobalScope` is the VContainer composition root for startup
+- `Bootstrap` is registered as an `IAsyncStartable` entry point
+- `SceneLoader` is currently the single scene-loading abstraction and loads `MainMenu` additively
+
+This is currently the preferred shape for application startup in this repository.
 
 ## Preferred Boundaries
 
@@ -52,6 +65,8 @@ Do not extract helpers mechanically.
 
 Only do it when the split reduces cognitive load or isolates a real ownership boundary.
 
+`Bootstrap` and `SceneLoader` are examples of acceptable plain C# classes here because they isolate startup and scene-transition responsibilities away from scene UI objects.
+
 ## UI And Scene Glue
 
 - UI classes should primarily coordinate presentation and input handling.
@@ -72,6 +87,13 @@ Only do it when the split reduces cognitive load or isolates a real ownership bo
 - Prefer deeper modules that hide messy details over shallow wrappers that only forward calls.
 - When a design decision is non-trivial, choose the shape that reduces what future readers must keep in their head.
 
+Current practical guidance:
+
+- keep app startup in the bootstrap slice under `Assets/_Root/Scripts/Architecture/Bootstrap/`
+- keep scene loading ownership in `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- do not route unrelated feature logic through the bootstrap classes
+- do not treat test-style scripts under `Assets/_Root/Scripts/Test/` as production architecture anchors
+
 ## Multiplayer Expectations
 
 When gameplay code can affect multiplayer behavior, always review:
@@ -91,6 +113,9 @@ Single-player assumptions should be stated explicitly when they are relied on.
 ## Related Files
 
 - `AGENTS.md`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `docs/unity/project-structure.md`
 

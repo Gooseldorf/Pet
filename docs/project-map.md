@@ -8,7 +8,7 @@ Use it to locate authored code, Unity content, build configuration, and document
 
 ## Project Summary
 
-`Pet` is a Unity project currently centered around a small authored runtime surface and a WebGL deployment pipeline through GitHub Pages.
+`Pet` is a Unity project currently centered around a small authored runtime surface, a bootstrap-scene startup flow with VContainer, and a WebGL deployment pipeline through GitHub Pages.
 
 The codebase is still compact, so this document acts as the top-level source of truth for where things live and which files to read first.
 
@@ -38,23 +38,35 @@ Key areas:
 
 ## Runtime Code
 
-Current authored C# runtime code is minimal.
+Current authored C# runtime code is still compact, but it now includes a bootstrap/composition-root slice under `Assets/_Root/Scripts/Architecture/`.
 
-Known script path:
+Known script paths:
 
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 Current observations:
 
-- the only authored script is in a `Test` namespace
-- serialized references are used for UI wiring
-- current behavior is a simple UI counter flow
+- `Bootstrap.unity` is now the startup scene in build settings
+- VContainer is used to create the bootstrap entry point and global scene loader
+- `MainMenu.unity` is loaded additively from the bootstrap flow
+- `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains a test-style script and is not the project architecture entry point
 
 ## Scenes
 
-Known scene:
+Known scenes:
 
+- `Assets/_Root/Scenes/Bootstrap.unity`
 - `Assets/_Root/Scenes/MainMenu.unity`
+
+Current startup flow:
+
+- `ProjectSettings/EditorBuildSettings.asset` starts from `Assets/_Root/Scenes/Bootstrap.unity`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs` is the VContainer lifetime scope for startup
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs` is registered as the entry point
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` loads `MainMenu` additively
 
 ## Prefabs
 

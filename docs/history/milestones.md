@@ -6,6 +6,34 @@ This page records notable technical milestones that should not live only in chat
 
 ## Milestones
 
+### Bootstrap scene and VContainer startup established
+
+Status: completed
+
+Summary:
+
+- The project now starts through a dedicated bootstrap scene and a VContainer composition root.
+
+Key artifacts:
+
+- scene: `Assets/_Root/Scenes/Bootstrap.unity`
+- scope: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- entry point: `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
+- scene loading: `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- build settings: `ProjectSettings/EditorBuildSettings.asset`
+
+Impact:
+
+- application startup is no longer coupled to opening `MainMenu.unity` directly
+- the repository now has an explicit composition root for global runtime wiring
+- additive scene loading is now part of the documented runtime startup path
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`
+- `../unity/runtime-architecture-guidelines.md`
+
 ### CI/CD module established
 
 Status: completed

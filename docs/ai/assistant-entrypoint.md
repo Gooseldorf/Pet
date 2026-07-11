@@ -21,6 +21,9 @@ Read this file first when you need to orient quickly.
 
 - The repository is a Unity project.
 - Authored content currently lives primarily under `Assets/_Root/`.
+- The project now starts through `Assets/_Root/Scenes/Bootstrap.unity`.
+- VContainer is used for the bootstrap composition root under `Assets/_Root/Scripts/Architecture/Bootstrap/`.
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` currently performs additive scene loading into `MainMenu`.
 - Current delivery path is WebGL deployment to GitHub Pages.
 - The current WebGL workflow is defined in `.github/workflows/deploy-pages.yml`.
 - The workflow currently builds WebGL directly through `game-ci/unity-builder`.

@@ -39,6 +39,7 @@ This is a project-layout document, not a full gameplay architecture document.
 
 ### Scenes
 
+- `Assets/_Root/Scenes/Bootstrap.unity`
 - `Assets/_Root/Scenes/MainMenu.unity`
 
 ### Prefabs
@@ -47,6 +48,9 @@ This is a project-layout document, not a full gameplay architecture document.
 
 ### Scripts
 
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 ### Settings Assets
@@ -55,13 +59,22 @@ This is a project-layout document, not a full gameplay architecture document.
 
 ## Current Script Notes
 
-`Assets/_Root/Scripts/Test/MainMenuTester.cs` is the current authored script.
+Current authored scripts now include a bootstrap/composition-root slice and a separate test-style script.
 
 Observed characteristics:
 
-- namespace: `Test`
-- serialized references for `TextMeshProUGUI` and `Button`
-- simple counter behavior driven by UI button events
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs` is a VContainer `LifetimeScope`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs` is an `IAsyncStartable` entry point
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` wraps additive scene loading through `SceneManager`
+- `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains in the `Test` namespace and is not the runtime architecture entry point
+
+## Startup Flow
+
+- `ProjectSettings/EditorBuildSettings.asset` currently enables `Bootstrap.unity` first and `MainMenu.unity` second
+- `Bootstrap.unity` is the startup scene
+- a scene object in `Bootstrap.unity` hosts `GlobalScope`
+- `GlobalScope` registers `SceneLoader` and the `Bootstrap` entry point through VContainer
+- `Bootstrap` loads `MainMenu` additively
 
 ## Package Notes
 
@@ -89,10 +102,15 @@ This indicates the project already has package-level support for async gameplay 
 
 ## Related Files
 
+- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `Assets/_Root/Scenes/MainMenu.unity`
+- `Assets/_Root/Scenes/Bootstrap.unity`
 - `Assets/_Root/Prefabs/pf_MainMenuButton.prefab`
 - `Packages/manifest.json`
+- `ProjectSettings/EditorBuildSettings.asset`
 - `ProjectSettings/ProjectVersion.txt`
 
 ## Related Docs
@@ -102,5 +120,5 @@ This indicates the project already has package-level support for async gameplay 
 
 ## Open Questions
 
-- There is not yet an established long-term runtime code organization beyond `Assets/_Root/Scripts/`.
+- There is not yet an established scene-local architecture for authored gameplay/UI code beyond the bootstrap and scene-loading slice.
 - There are not yet formal documented scene/prefab ownership conventions beyond the currently observed naming pattern.

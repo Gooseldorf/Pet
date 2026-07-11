@@ -14,6 +14,7 @@ It is written for both humans and coding agents:
 - `project-map.md`: top-level repository map and source-of-truth index
 - `ai/assistant-entrypoint.md`: shortest agent-oriented entrypoint
 - `systems/ci-cd.md`: current WebGL build and deployment pipeline
+- `systems/platform-strategy.md`: current platform direction and how to interpret the temporary WebGL path
 - `unity/project-structure.md`: current Unity-authored content layout
 - `history/milestones.md`: notable project milestones
 

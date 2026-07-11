@@ -25,6 +25,12 @@ The project now has a minimal startup architecture built around:
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/UI/UiRoot.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
 
 `Assets/_Root/Scripts/Test/MainMenuTester.cs` still exists, but it is a test-style script and not the architecture entry point.
 
@@ -34,6 +40,7 @@ That means these guidelines are intended to shape future growth from a small but
 
 - `Bootstrap.unity` is the startup scene in `ProjectSettings/EditorBuildSettings.asset`
 - `GlobalScope` is the VContainer composition root for startup
+- `ProjectConfig` is the current local authored config root registered by `GlobalScope`
 - `Bootstrap` is registered as an `IAsyncStartable` entry point
 - `SceneLoader` is currently the single scene-loading abstraction and loads `MainMenu` additively
 
@@ -80,6 +87,16 @@ Only do it when the split reduces cognitive load or isolates a real ownership bo
 - Required references should usually fail loudly when not assigned correctly.
 - Do not compensate for missing authored wiring with broad defensive null handling.
 
+## Local Config Guidance
+
+- Prefer the local `ScriptableObject` config layer for shared authored values that should not live on individual scene components.
+- The current config root is `Assets/_Root/Scripts/Configs/ProjectConfig.cs`.
+- Config branches can reference other config assets, but each authored config type should itself be a `ScriptableObject`.
+- Keep config types split into separate `.cs` files instead of grouping multiple classes or structs into one file.
+- Keep `CreateAssetMenu` paths aligned with the project folder structure, starting with `Configs/`.
+- Register the local config root in the startup composition root and inject it explicitly where needed.
+- Do not introduce global static config access when the existing bootstrap plus DI wiring can provide the dependency.
+
 ## Abstraction Rules
 
 - Prefer the smallest design that keeps ownership clear.
@@ -116,6 +133,12 @@ Single-player assumptions should be stated explicitly when they are relied on.
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/UI/UiRoot.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `docs/unity/project-structure.md`
 

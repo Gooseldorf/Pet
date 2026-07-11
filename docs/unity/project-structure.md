@@ -51,6 +51,12 @@ This is a project-layout document, not a full gameplay architecture document.
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/UI/UiRoot.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 ### Settings Assets
@@ -59,13 +65,18 @@ This is a project-layout document, not a full gameplay architecture document.
 
 ## Current Script Notes
 
-Current authored scripts now include a bootstrap/composition-root slice and a separate test-style script.
+Current authored scripts now include separate bootstrap, config, UI, and test slices.
 
 Observed characteristics:
 
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs` is a VContainer `LifetimeScope`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs` is an `IAsyncStartable` entry point
+- `Assets/_Root/Scripts/Configs/ProjectConfig.cs` is the current local `ScriptableObject` config root
+- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs` and `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs` are separate config asset types under the same local config layer
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` wraps additive scene loading through `SceneManager`
+- `Assets/_Root/Scripts/UI/UiRoot.cs` exposes scene-authored UI references
+- `Assets/_Root/Scripts/UI/LoadingOverlay.cs` is the authored loading overlay view driven by injected config
+- `Assets/_Root/Scripts/UI/LoadingOverlayController.cs` is the plain C# wrapper used to drive the overlay
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains in the `Test` namespace and is not the runtime architecture entry point
 
 ## Startup Flow
@@ -73,8 +84,19 @@ Observed characteristics:
 - `ProjectSettings/EditorBuildSettings.asset` currently enables `Bootstrap.unity` first and `MainMenu.unity` second
 - `Bootstrap.unity` is the startup scene
 - a scene object in `Bootstrap.unity` hosts `GlobalScope`
+- `GlobalScope` serializes and registers `ProjectConfig`
 - `GlobalScope` registers `SceneLoader` and the `Bootstrap` entry point through VContainer
 - `Bootstrap` loads `MainMenu` additively
+
+## Local Config Layer
+
+- local config root: `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- config folder: `Assets/_Root/Scripts/Configs/`
+- current config asset files:
+  - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+  - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- registration site: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- current usage: `Assets/_Root/Scripts/UI/LoadingOverlay.cs` reads `ProjectConfig.UI.LoadingOverlay.FadeDuration`
 
 ## Package Notes
 
@@ -105,6 +127,12 @@ This indicates the project already has package-level support for async gameplay 
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/UI/UiRoot.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `Assets/_Root/Scenes/MainMenu.unity`
 - `Assets/_Root/Scenes/Bootstrap.unity`

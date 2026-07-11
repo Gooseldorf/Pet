@@ -8,6 +8,8 @@ This page describes the current automated build and deployment pipeline for the 
 
 Current scope covers the GitHub Actions workflow that builds a WebGL player and deploys it to GitHub Pages.
 
+This document is the source of truth for the current pipeline, not for the long-term platform strategy.
+
 ## Source Of Truth
 
 - `.github/workflows/deploy-pages.yml`
@@ -88,6 +90,7 @@ Typical failure sources to check first:
 ## Related Docs
 
 - `../project-map.md`
+- `platform-strategy.md`
 - `../workflows/updating-docs.md`
 - `../history/milestones.md`
 

@@ -255,6 +255,7 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  projectConfig: {fileID: 11400000, guid: 9d4bfafa41b2f4442ac256b9aeb84470, type: 2}
   uiRoot: {fileID: 2121403410}
 --- !u!4 &747176365
 Transform:
@@ -547,7 +548,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Architecture.UI.LoadingOverlay
   canvasGroup: {fileID: 2111886710}
-  fadeDuration: 1
 --- !u!1 &2121403409
 GameObject:
   m_ObjectHideFlags: 0

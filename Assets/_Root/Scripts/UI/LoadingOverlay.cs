@@ -1,13 +1,23 @@
 using System.Threading;
+using Architecture.Configs;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 namespace Architecture.UI
 {
     public class LoadingOverlay : MonoBehaviour
     {
         [SerializeField] private CanvasGroup canvasGroup;
-        [SerializeField] private float fadeDuration = 0.2f;
+
+        private ProjectConfig projectConfig;
+        private int transitionVersion;
+
+        [Inject]
+        public void Construct(ProjectConfig projectConfig)
+        {
+            this.projectConfig = projectConfig;
+        }
 
         public void SetVisible(bool visible)
         {
@@ -28,6 +38,9 @@ namespace Architecture.UI
 
         private async UniTask FadeToAsync(float targetAlpha, bool interactive, CancellationToken cancellation)
         {
+            int version = ++transitionVersion;
+            float fadeDuration = projectConfig.UI.LoadingOverlay.FadeDuration;
+
             canvasGroup.blocksRaycasts = interactive;
             canvasGroup.interactable = interactive;
 
@@ -49,11 +62,21 @@ namespace Architecture.UI
             {
                 cancellation.ThrowIfCancellationRequested();
 
+                if (version != transitionVersion)
+                {
+                    return;
+                }
+
                 elapsed += Time.unscaledDeltaTime;
                 float progress = Mathf.Clamp01(elapsed / fadeDuration);
                 canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, progress);
 
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellation);
+            }
+
+            if (version != transitionVersion)
+            {
+                return;
             }
 
             canvasGroup.alpha = targetAlpha;

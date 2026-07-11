@@ -18,6 +18,9 @@
 ## C# And Unity Conventions
 
 - Private fields use `camelCase` without `_` prefix.
+- Do not put multiple classes or structs in one `.cs` file; prefer one top-level type per file.
+- Any authored config type should be a `ScriptableObject`.
+- `CreateAssetMenu` paths for authored types should start with `Configs/` and mirror the project folder structure from there.
 - Prefer typed serialized references over `GameObject` + `GetComponent`.
 - Avoid `GameObject.Find`, `Transform.Find`, and other runtime hierarchy search to wire references; use them only when serialized fields, config references, or scene/prefab authoring cannot provide the reference.
 - Avoid defensive null-guard spam for required serialized/runtime fields; missing wiring should usually fail loudly.

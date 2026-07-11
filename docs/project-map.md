@@ -8,7 +8,9 @@ Use it to locate authored code, Unity content, build configuration, and document
 
 ## Project Summary
 
-`Pet` is a Unity project currently centered around a small authored runtime surface, a bootstrap-scene startup flow with VContainer, and a WebGL deployment pipeline through GitHub Pages.
+`Pet` is a Unity project currently centered around a small authored runtime surface, a bootstrap-scene startup flow with VContainer, and a temporary WebGL deployment pipeline through GitHub Pages.
+
+Long-term target platforms are mobile and PC.
 
 The codebase is still compact, so this document acts as the top-level source of truth for where things live and which files to read first.
 
@@ -38,19 +40,33 @@ Key areas:
 
 ## Runtime Code
 
-Current authored C# runtime code is still compact, but it now includes a bootstrap/composition-root slice under `Assets/_Root/Scripts/Architecture/`.
+Current authored C# runtime code is still compact, but it is now split into separate top-level slices under `Assets/_Root/Scripts/`.
+
+Current script slices:
+
+- `Assets/_Root/Scripts/Architecture/` for bootstrap and scene-loading code
+- `Assets/_Root/Scripts/Configs/` for local `ScriptableObject` config assets
+- `Assets/_Root/Scripts/UI/` for authored UI runtime components
+- `Assets/_Root/Scripts/Test/` for test-style runtime scripts
 
 Known script paths:
 
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+- `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/UI/UiRoot.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+- `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 Current observations:
 
 - `Bootstrap.unity` is now the startup scene in build settings
 - VContainer is used to create the bootstrap entry point and global scene loader
+- `ProjectConfig` is a local `ScriptableObject` config root registered in `GlobalScope`
 - `MainMenu.unity` is loaded additively from the bootstrap flow
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains a test-style script and is not the project architecture entry point
 
@@ -65,8 +81,27 @@ Current startup flow:
 
 - `ProjectSettings/EditorBuildSettings.asset` starts from `Assets/_Root/Scenes/Bootstrap.unity`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs` is the VContainer lifetime scope for startup
+- `GlobalScope` serializes and registers a local `ProjectConfig`
 - `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs` is registered as the entry point
 - `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` loads `MainMenu` additively
+
+## Local Config Layer
+
+Current local config layer:
+
+- root asset type: `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
+- current config asset types:
+  - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
+  - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- current config branch: `UI -> LoadingOverlay -> FadeDuration`
+- current bootstrap registration site: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- current consumer: `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+
+Current intent:
+
+- shared authored configuration should move out of scene components and into the local config root when that improves ownership
+- authored config types should be individual `ScriptableObject` assets rather than nested serializable classes
+- the current config layer is local and bootstrap-wired, not a remote live-config system
 
 ## Prefabs
 
@@ -81,6 +116,11 @@ Observed naming convention:
 ## Build And Delivery
 
 Current delivery path is WebGL to GitHub Pages.
+
+Platform direction:
+
+- long-term target platforms are mobile and PC
+- the current WebGL path is an operational delivery workflow, not the long-term architectural target
 
 Key files:
 
@@ -129,8 +169,10 @@ Current state:
 | Agent navigation | `docs/ai/assistant-entrypoint.md` |
 | Local coding skills | `docs/ai/coding-skills.md` |
 | CI/CD | `docs/systems/ci-cd.md` |
+| Platform strategy | `docs/systems/platform-strategy.md` |
 | Unity authored layout | `docs/unity/project-structure.md` |
 | Unity runtime code guidance | `docs/unity/runtime-architecture-guidelines.md` |
+| Local config layer | `Assets/_Root/Scripts/Configs/` |
 | Documentation maintenance workflow | `docs/workflows/updating-docs.md` |
 | Notable project changes | `docs/history/milestones.md` |
 
@@ -141,5 +183,6 @@ Current state:
 - `ai/coding-skills.md`
 - `ai/retrieval-map.md`
 - `systems/ci-cd.md`
+- `systems/platform-strategy.md`
 - `unity/project-structure.md`
 - `unity/runtime-architecture-guidelines.md`

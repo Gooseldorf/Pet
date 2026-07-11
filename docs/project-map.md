@@ -75,6 +75,19 @@ Key files:
 - workflow: `.github/workflows/deploy-pages.yml`
 - Unity version: `ProjectSettings/ProjectVersion.txt`
 
+## Package Highlights
+
+Current notable packages in `Packages/manifest.json` include:
+
+- `com.cysharp.unitask`
+- `jp.hadashikick.vcontainer`
+- `com.unity.addressables`
+- `com.unity.ai.navigation`
+- `com.unity.cinemachine`
+- `com.unity.render-pipelines.universal`
+
+These packages indicate planned or available support for async flows, DI, asset delivery, navigation, camera systems, and URP rendering.
+
 ## Unity Version
 
 Current editor version:

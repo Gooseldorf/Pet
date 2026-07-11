@@ -65,15 +65,20 @@ Observed characteristics:
 
 ## Package Notes
 
-`Packages/manifest.json` currently includes, among others:
+`Packages/manifest.json` currently includes these notable packages:
 
+- `com.cysharp.unitask`
+- `jp.hadashikick.vcontainer`
+- `com.unity.addressables`
+- `com.unity.ai.navigation`
+- `com.unity.cinemachine`
 - `com.unity.inputsystem`
-- `com.unity.multiplayer.center`
 - `com.unity.render-pipelines.universal`
 - `com.unity.test-framework`
+- `com.unity.timeline`
 - `com.unity.ugui`
 
-This indicates the project already has package-level support for UI, URP, input, testing, and multiplayer-related tooling, even though authored gameplay systems are still minimal.
+This indicates the project already has package-level support for async gameplay flows, DI, asset delivery, navigation, camera/cinematic workflows, UI, input, URP, and testing, even though authored gameplay systems are still minimal.
 
 ## Conventions
 

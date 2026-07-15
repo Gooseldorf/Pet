@@ -18,6 +18,7 @@
 ## C# And Unity Conventions
 
 - Private fields use `camelCase` without `_` prefix.
+- `const` fields use `UPPER_SNAKE_CASE` names such as `BOOTSTRAP_SCENE_NAME`.
 - Do not put multiple classes or structs in one `.cs` file; prefer one top-level type per file.
 - Any authored config type should be a `ScriptableObject`.
 - `CreateAssetMenu` paths for authored types should start with `Configs/` and mirror the project folder structure from there.

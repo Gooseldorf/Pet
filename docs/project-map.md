@@ -131,14 +131,23 @@ Key files:
 
 Current notable packages in `Packages/manifest.json` include:
 
+- `com.cysharp.r3`
 - `com.cysharp.unitask`
+- `com.github-glitchenzo.nugetforunity`
 - `jp.hadashikick.vcontainer`
 - `com.unity.addressables`
 - `com.unity.ai.navigation`
 - `com.unity.cinemachine`
 - `com.unity.render-pipelines.universal`
 
-These packages indicate planned or available support for async flows, DI, asset delivery, navigation, camera systems, and URP rendering.
+Current package-source notes:
+
+- `Packages/manifest.json` defines an OpenUPM scoped registry for `jp.hadashikick.vcontainer`
+- `com.cysharp.r3` is pulled from the upstream Git repository at the Unity package path
+- `com.cysharp.unitask` is pulled from the upstream Git repository at the Unity package path
+- `com.github-glitchenzo.nugetforunity` is pulled from the upstream Git repository at the Unity package path
+
+These packages indicate current support for reactive flows, async flows, NuGet-backed package intake in the editor, DI, asset delivery, navigation, camera systems, and URP rendering.
 
 ## Unity Version
 

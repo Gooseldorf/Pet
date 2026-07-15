@@ -20,5 +20,6 @@ public class GlobalScope : LifetimeScope
         builder.Register<SceneLoader>(Lifetime.Singleton);
         
         builder.RegisterEntryPoint<Bootstrap>();
+        
     }
 }

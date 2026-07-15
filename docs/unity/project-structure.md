@@ -102,7 +102,9 @@ Observed characteristics:
 
 `Packages/manifest.json` currently includes these notable packages:
 
+- `com.cysharp.r3`
 - `com.cysharp.unitask`
+- `com.github-glitchenzo.nugetforunity`
 - `jp.hadashikick.vcontainer`
 - `com.unity.addressables`
 - `com.unity.ai.navigation`
@@ -113,7 +115,12 @@ Observed characteristics:
 - `com.unity.timeline`
 - `com.unity.ugui`
 
-This indicates the project already has package-level support for async gameplay flows, DI, asset delivery, navigation, camera/cinematic workflows, UI, input, URP, and testing, even though authored gameplay systems are still minimal.
+Current package-source notes:
+
+- `Packages/manifest.json` defines the `package.openupm.com` scoped registry for `jp.hadashikick.vcontainer`
+- `com.cysharp.r3`, `com.cysharp.unitask`, and `com.github-glitchenzo.nugetforunity` are Git-based package dependencies
+
+This indicates the project already has package-level support for reactive gameplay/UI flows, async gameplay flows, NuGet-backed package intake in the editor, DI, asset delivery, navigation, camera/cinematic workflows, UI, input, URP, and testing, even though authored gameplay systems are still minimal.
 
 ## Conventions
 

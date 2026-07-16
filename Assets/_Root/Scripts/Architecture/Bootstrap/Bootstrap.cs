@@ -17,6 +17,7 @@ namespace Architecture.Bootstrap
         public async UniTask StartAsync(CancellationToken cancellation)
         {
             cancellation.ThrowIfCancellationRequested();
+
             await sceneLoader.LoadAdditiveAsync("MainMenu", cancellation);
         }
     }

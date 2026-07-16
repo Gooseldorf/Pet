@@ -233,7 +233,7 @@ GameObject:
   - component: {fileID: 747176365}
   - component: {fileID: 747176364}
   m_Layer: 0
-  m_Name: DI_Project
+  m_Name: GlobalScope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

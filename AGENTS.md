@@ -35,3 +35,4 @@
 
 - Do not fake required prefab/scene work with runtime hacks; if integration needs prefab or scene changes, ask the user to make them.
 - Agent-side edits should stay in code unless the user explicitly asks to edit `ScriptableObject`, `.asset`, prefab, scene, or other serialized Unity assets. If such asset work is needed, say exactly what to wire or change in the Unity Editor.
+- Do not create or edit Unity `.meta` files manually. Let the Unity Editor generate and maintain them.

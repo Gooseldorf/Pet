@@ -137,6 +137,33 @@ Related docs:
 - `../unity/project-structure.md`
 - `../unity/runtime-architecture-guidelines.md`
 
+### Reactive input module established
+
+Status: completed
+
+Summary:
+
+- The runtime architecture now includes a dedicated reactive input slice built on top of Unity Input System and R3.
+
+Key artifacts:
+
+- ownership: `Assets/_Root/Scripts/Input/InputActionsProvider.cs`
+- action adapters: `Assets/_Root/Scripts/Input/InputActionObservableExtensions.cs`
+- player API: `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
+- player streams: `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
+- bootstrap wiring: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+
+Impact:
+
+- Unity `InputAction` details are now contained inside a dedicated module boundary
+- player input can now be consumed as reactive streams instead of ad-hoc callbacks
+- startup wiring now enables input maps centrally through the composition root
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/runtime-architecture-guidelines.md`
+
 ### Authored script folders reorganized into top-level slices
 
 Status: completed

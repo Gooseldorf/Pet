@@ -1,18 +1,21 @@
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using Architecture.UI;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer.Unity;
 
 namespace Architecture.SceneLoading
 {
     public class SceneLoader
     {
         private readonly LoadingOverlayController loadingOverlayController;
+        private readonly LifetimeScope lifetimeScope;
 
-        public SceneLoader(LoadingOverlayController loadingOverlayController)
+        public SceneLoader(LoadingOverlayController loadingOverlayController, LifetimeScope lifetimeScope)
         {
             this.loadingOverlayController = loadingOverlayController;
+            this.lifetimeScope = lifetimeScope;
         }
 
         public async UniTask LoadAdditiveAsync(string sceneName, CancellationToken cancellation = default)
@@ -27,7 +30,10 @@ namespace Architecture.SceneLoading
 
             try
             {
-                await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                using (LifetimeScope.EnqueueParent(lifetimeScope))
+                {
+                    await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                }
             }
             finally
             {

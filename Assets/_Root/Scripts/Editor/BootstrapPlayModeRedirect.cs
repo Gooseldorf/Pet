@@ -11,7 +11,7 @@ public static class BootstrapPlayModeRedirect
     private const string BOOTSTRAP_SCENE_PATH = "Assets/_Root/Scenes/Bootstrap.unity";
     
     private const string MENU_SCENE_NAME = "MainMenu";
-    private const string SPIDER_SCENE_NAME = "Spider";
+    private const string GAMEPLAY_SCENE_NAME = "Gameplay";
 
     static BootstrapPlayModeRedirect()
     {
@@ -27,7 +27,7 @@ public static class BootstrapPlayModeRedirect
         }
 
         Scene activeScene = SceneManager.GetActiveScene();
-        if (activeScene.name is MENU_SCENE_NAME/* or SPIDER_SCENE_NAME*/) //Scenes to redirect from
+        if (activeScene.name is MENU_SCENE_NAME or GAMEPLAY_SCENE_NAME)
         {
             SceneAsset bootstrapScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(BOOTSTRAP_SCENE_PATH);
             if (bootstrapScene == null)

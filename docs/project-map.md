@@ -24,6 +24,7 @@ The codebase is still compact, so this document acts as the top-level source of 
 | `.github/` | GitHub workflow configuration |
 | `.opencode/` | Local OpenCode skills and related agent assets |
 | `docs/` | Technical knowledge base for humans and agents |
+| `THIRD-PARTY-ASSETS.md` | Third-party asset attribution and licensing notes |
 
 ## Authored Unity Content
 
@@ -175,6 +176,7 @@ Current state:
 | Topic | Source Of Truth |
 | --- | --- |
 | Repository map | `docs/project-map.md` |
+| Third-party asset attribution | `THIRD-PARTY-ASSETS.md` |
 | Agent navigation | `docs/ai/assistant-entrypoint.md` |
 | Local coding skills | `docs/ai/coding-skills.md` |
 | CI/CD | `docs/systems/ci-cd.md` |

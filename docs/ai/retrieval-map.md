@@ -9,6 +9,7 @@ This page helps agents retrieve project context with minimal searching.
 | Topic | Read | Notes |
 | --- | --- | --- |
 | repository overview | `docs/project-map.md` | First stop for structure and paths |
+| third-party asset attribution | `THIRD-PARTY-ASSETS.md` | Use for required asset credits and license references |
 | build pipeline | `docs/systems/ci-cd.md` | Includes workflow path, triggers, secrets, failure modes |
 | Unity structure | `docs/unity/project-structure.md` | Includes scenes, prefabs, scripts, naming conventions |
 | Unity runtime code guidance | `docs/unity/runtime-architecture-guidelines.md` | Use for code ownership, MonoBehaviour boundaries, and multiplayer review expectations |

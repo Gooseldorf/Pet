@@ -9,6 +9,9 @@ public static class BootstrapPlayModeRedirect
 {
     private const string BOOTSTRAP_SCENE_NAME = "Bootstrap";
     private const string BOOTSTRAP_SCENE_PATH = "Assets/_Root/Scenes/Bootstrap.unity";
+    
+    private const string MENU_SCENE_NAME = "MainMenu";
+    private const string SPIDER_SCENE_NAME = "Spider";
 
     static BootstrapPlayModeRedirect()
     {
@@ -24,21 +27,21 @@ public static class BootstrapPlayModeRedirect
         }
 
         Scene activeScene = SceneManager.GetActiveScene();
-        if (activeScene.name == BOOTSTRAP_SCENE_NAME)
+        if (activeScene.name is MENU_SCENE_NAME/* or SPIDER_SCENE_NAME*/) //Scenes to redirect from
         {
-            EditorSceneManager.playModeStartScene = null;
+            SceneAsset bootstrapScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(BOOTSTRAP_SCENE_PATH);
+            if (bootstrapScene == null)
+            {
+                Debug.LogError($"Bootstrap scene not found at path: {BOOTSTRAP_SCENE_PATH}");
+                EditorSceneManager.playModeStartScene = null;
+                return;
+            }
+
+            EditorSceneManager.playModeStartScene = bootstrapScene;
             return;
         }
 
-        SceneAsset bootstrapScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(BOOTSTRAP_SCENE_PATH);
-        if (bootstrapScene == null)
-        {
-            Debug.LogError($"Bootstrap scene not found at path: {BOOTSTRAP_SCENE_PATH}");
-            EditorSceneManager.playModeStartScene = null;
-            return;
-        }
-
-        EditorSceneManager.playModeStartScene = bootstrapScene;
+        EditorSceneManager.playModeStartScene = null;
     }
 }
 #endif

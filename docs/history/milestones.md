@@ -17,9 +17,9 @@ Summary:
 Key artifacts:
 
 - scene: `Assets/_Root/Scenes/Bootstrap.unity`
-- scope: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
-- entry point: `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
-- scene loading: `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- scope: `Assets/_Root/Scripts/DI/GlobalScope.cs`
+- entry point: `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- scene loading: `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - build settings: `ProjectSettings/EditorBuildSettings.asset`
 
 Impact:
@@ -128,7 +128,7 @@ Key artifacts:
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 
 Related docs:
@@ -151,7 +151,7 @@ Key artifacts:
 - action adapters: `Assets/_Root/Scripts/Input/InputActionObservableExtensions.cs`
 - player API: `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
 - player streams: `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
-- bootstrap wiring: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- bootstrap wiring: `Assets/_Root/Scripts/DI/GlobalScope.cs`
 
 Impact:
 
@@ -170,19 +170,24 @@ Status: completed
 
 Summary:
 
-- Authored runtime scripts under `Assets/_Root/Scripts/` were reorganized so bootstrap, config, UI, and test code now live in separate top-level folders.
+- Authored runtime scripts under `Assets/_Root/Scripts/` were reorganized so bootstrap, DI, scene-loading, config, input, UI, editor, and test-style code now live in separate top-level folders.
 
 Impact:
 
 - docs and agent retrieval can now reason about script ownership from folder layout more directly
 - config asset types are no longer documented as part of the bootstrap architecture folder
 - UI runtime components now have an explicit home separate from startup code
+- composition roots, scene loading, and runtime input now have clearer top-level homes
 
 Key artifacts:
 
-- `Assets/_Root/Scripts/Architecture/`
+- `Assets/_Root/Scripts/Bootstrap/`
+- `Assets/_Root/Scripts/DI/`
+- `Assets/_Root/Scripts/SceneLoading/`
 - `Assets/_Root/Scripts/Configs/`
+- `Assets/_Root/Scripts/Input/`
 - `Assets/_Root/Scripts/UI/`
+- `Assets/_Root/Scripts/Editor/`
 - `Assets/_Root/Scripts/Test/`
 
 Related docs:
@@ -190,4 +195,30 @@ Related docs:
 - `../project-map.md`
 - `../ai/assistant-entrypoint.md`
 - `../unity/project-structure.md`
+- `../unity/runtime-architecture-guidelines.md`
+
+### Namespace and assembly conventions established
+
+Status: completed
+
+Summary:
+
+- The project now has an explicit rule for short `Pet`-rooted namespaces and a baseline authored assembly layout.
+
+Impact:
+
+- future code should stay readable without deep namespace nesting
+- architectural isolation should now be expressed primarily through `asmdef` boundaries instead of long namespace paths
+- editor-only code now has a dedicated authored assembly home
+
+Key artifacts:
+
+- `AGENTS.md`
+- `docs/unity/runtime-architecture-guidelines.md`
+- `Assets/_Root/Scripts/Pet.Runtime.asmdef`
+- `Assets/_Root/Scripts/Editor/Pet.Editor.asmdef`
+
+Related docs:
+
+- `../ai/assistant-entrypoint.md`
 - `../unity/runtime-architecture-guidelines.md`

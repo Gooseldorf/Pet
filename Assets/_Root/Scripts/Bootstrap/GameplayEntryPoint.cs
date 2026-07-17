@@ -1,7 +1,7 @@
-using Architecture.Input;
+using Pet.Input;
 using VContainer.Unity;
 
-namespace Architecture.Gameplay
+namespace Pet.Gameplay
 {
     public class GameplayEntryPoint : IStartable
     {

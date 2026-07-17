@@ -4,7 +4,7 @@ using System.Threading;
 using R3;
 using UnityEngine;
 
-namespace Architecture.Input.Player
+namespace Pet.Input
 {
     public class PlayerInputStreams : IPlayerInputStreams, IDisposable
     {

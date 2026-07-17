@@ -1,0 +1,21 @@
+{
+    "name": "Pet.Runtime",
+    "rootNamespace": "Pet",
+    "references": [
+        "UniTask",
+        "VContainer",
+        "R3.Unity",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

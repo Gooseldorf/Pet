@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Architecture.Configs
+namespace Pet.Configs
 {
     [CreateAssetMenu(fileName = "LoadingOverlayConfig", menuName = "Configs/UI/Loading Overlay Config")]
     public class LoadingOverlayConfig : ScriptableObject

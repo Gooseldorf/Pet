@@ -1,7 +1,7 @@
 using R3;
 using UnityEngine;
 
-namespace Architecture.Input.Player
+namespace Pet.Input
 {
     public interface IPlayerInputStreams
     {

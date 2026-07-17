@@ -2,7 +2,7 @@ using System.Threading;
 using R3;
 using UnityEngine.InputSystem;
 
-namespace Architecture.Input
+namespace Pet.Input
 {
     public static class InputActionObservableExtensions
     {

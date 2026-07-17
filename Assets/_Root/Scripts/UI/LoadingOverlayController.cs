@@ -1,7 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Architecture.UI
+namespace Pet.UI
 {
     public class LoadingOverlayController
     {

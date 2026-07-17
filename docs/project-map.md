@@ -8,11 +8,9 @@ Use it to locate authored code, Unity content, build configuration, and document
 
 ## Project Summary
 
-`Pet` is a Unity project currently centered around a small authored runtime surface, a bootstrap-scene startup flow with VContainer, and a temporary WebGL deployment pipeline through GitHub Pages.
+`Pet` is a Unity project currently centered around a small authored runtime surface, a bootstrap-scene startup flow with VContainer, a reactive input slice built on Unity Input System and R3, and a temporary WebGL deployment pipeline through GitHub Pages.
 
 Long-term target platforms are mobile and PC.
-
-The codebase is still compact, so this document acts as the top-level source of truth for where things live and which files to read first.
 
 ## Top-Level Directories
 
@@ -41,35 +39,50 @@ Key areas:
 
 ## Runtime Code
 
-Current authored C# runtime code is still compact, but it is now split into separate top-level slices under `Assets/_Root/Scripts/`.
+Current authored C# code under `Assets/_Root/Scripts/` is split into focused top-level slices.
 
 Current script slices:
 
-- `Assets/_Root/Scripts/Architecture/` for bootstrap and scene-loading code
+- `Assets/_Root/Scripts/Bootstrap/` for startup entry points
+- `Assets/_Root/Scripts/DI/` for VContainer lifetime scopes and composition roots
+- `Assets/_Root/Scripts/SceneLoading/` for additive scene loading
 - `Assets/_Root/Scripts/Configs/` for local `ScriptableObject` config assets
+- `Assets/_Root/Scripts/Input/` for Unity Input System integration and player input streams
 - `Assets/_Root/Scripts/UI/` for authored UI runtime components
 - `Assets/_Root/Scripts/Test/` for test-style runtime scripts
+- `Assets/_Root/Scripts/Editor/` for editor-only authored code
 
 Known script paths:
 
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
+- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/DI/GlobalScope.cs`
+- `Assets/_Root/Scripts/DI/MainMenuScope.cs`
+- `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/Input/InputActionsProvider.cs`
+- `Assets/_Root/Scripts/Input/InputActionObservableExtensions.cs`
+- `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
+- `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
 - `Assets/_Root/Scripts/UI/UiRoot.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
+- `Assets/_Root/Scripts/Editor/BootstrapPlayModeRedirect.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 Current observations:
 
-- `Bootstrap.unity` is now the startup scene in build settings
-- VContainer is used to create the bootstrap entry point and global scene loader
+- `Bootstrap.unity` is the startup scene in build settings
+- VContainer is used to create the bootstrap entry point, lifetime scopes, and scene loader
 - `ProjectConfig` is a local `ScriptableObject` config root registered in `GlobalScope`
 - `MainMenu.unity` is loaded additively from the bootstrap flow
-- `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains a test-style script and is not the project architecture entry point
+- authored code now compiles through `Pet.Runtime` and `Pet.Editor` assembly definitions
+- authored namespaces are intentionally short and root at `Pet`
+- `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains a test-style runtime script and is not the project architecture entry point
 
 ## Scenes
 
@@ -81,10 +94,10 @@ Known scenes:
 Current startup flow:
 
 - `ProjectSettings/EditorBuildSettings.asset` starts from `Assets/_Root/Scenes/Bootstrap.unity`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs` is the VContainer lifetime scope for startup
+- `Assets/_Root/Scripts/DI/GlobalScope.cs` is the VContainer lifetime scope for startup
 - `GlobalScope` serializes and registers a local `ProjectConfig`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs` is registered as the entry point
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` loads `MainMenu` additively
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs` is registered as the initial entry point
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` loads `MainMenu` additively
 
 ## Local Config Layer
 
@@ -95,7 +108,7 @@ Current local config layer:
   - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
   - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
 - current config branch: `UI -> LoadingOverlay -> FadeDuration`
-- current bootstrap registration site: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- current bootstrap registration site: `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - current consumer: `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 
 Current intent:
@@ -139,6 +152,7 @@ Current notable packages in `Packages/manifest.json` include:
 - `com.unity.addressables`
 - `com.unity.ai.navigation`
 - `com.unity.cinemachine`
+- `com.unity.inputsystem`
 - `com.unity.render-pipelines.universal`
 
 Current package-source notes:
@@ -147,8 +161,6 @@ Current package-source notes:
 - `com.cysharp.r3` is pulled from the upstream Git repository at the Unity package path
 - `com.cysharp.unitask` is pulled from the upstream Git repository at the Unity package path
 - `com.github-glitchenzo.nugetforunity` is pulled from the upstream Git repository at the Unity package path
-
-These packages indicate current support for reactive flows, async flows, NuGet-backed package intake in the editor, DI, asset delivery, navigation, camera systems, and URP rendering.
 
 ## Unity Version
 
@@ -163,6 +175,16 @@ Current state:
 - `com.unity.test-framework` is present in `Packages/manifest.json`
 - there is no established authored automated test suite yet
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs` is a runtime/test-style script, not a formal test assembly
+
+Current authored assembly baseline:
+
+- `Assets/_Root/Scripts/Pet.Runtime.asmdef`
+- `Assets/_Root/Scripts/Editor/Pet.Editor.asmdef`
+
+Current authored namespace baseline:
+
+- `Pet` for bootstrap, composition-root, scene-loading, and shared runtime coordination
+- `Pet.UI`, `Pet.Input`, `Pet.Configs`, `Pet.MainMenu`, `Pet.Gameplay`, and `Pet.Editor` for focused authored slices
 
 ## Key Conventions
 

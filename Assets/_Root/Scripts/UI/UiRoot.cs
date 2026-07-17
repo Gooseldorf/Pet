@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Architecture.UI
+namespace Pet.UI
 {
     public class UiRoot : MonoBehaviour
     {

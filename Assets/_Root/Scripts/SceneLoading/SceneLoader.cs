@@ -1,11 +1,11 @@
 using System.Threading;
-using Architecture.UI;
 using Cysharp.Threading.Tasks;
+using Pet.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer.Unity;
 
-namespace Architecture.SceneLoading
+namespace Pet
 {
     public class SceneLoader
     {

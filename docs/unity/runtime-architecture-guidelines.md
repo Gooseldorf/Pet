@@ -22,17 +22,19 @@ The current authored runtime surface is still small.
 
 The project now has a minimal startup architecture built around:
 
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/DI/GlobalScope.cs`
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/Input/InputActionsProvider.cs`
+- `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
 - `Assets/_Root/Scripts/UI/UiRoot.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
 
-`Assets/_Root/Scripts/Test/MainMenuTester.cs` still exists, but it is a test-style script and not the architecture entry point.
+`Assets/_Root/Scripts/Test/MainMenuTester.cs` still exists, but it is a test-style runtime script and not the architecture entry point.
 
 That means these guidelines are intended to shape future growth from a small but real bootstrap/composition-root foundation.
 
@@ -72,7 +74,7 @@ Do not extract helpers mechanically.
 
 Only do it when the split reduces cognitive load or isolates a real ownership boundary.
 
-`Bootstrap` and `SceneLoader` are examples of acceptable plain C# classes here because they isolate startup and scene-transition responsibilities away from scene UI objects.
+`Bootstrap`, `SceneLoader`, and `LoadingOverlayController` are acceptable examples here because they isolate startup and scene-transition responsibilities away from scene-owned UI objects.
 
 ## UI And Scene Glue
 
@@ -104,10 +106,23 @@ Only do it when the split reduces cognitive load or isolates a real ownership bo
 - Prefer deeper modules that hide messy details over shallow wrappers that only forward calls.
 - When a design decision is non-trivial, choose the shape that reduces what future readers must keep in their head.
 
+## Namespaces And Assemblies
+
+- Prefer short authored namespaces rooted at `Pet`.
+- Default namespace shapes are `Pet` and `Pet.X` such as `Pet.UI`, `Pet.Input`, `Pet.Configs`, `Pet.MainMenu`, `Pet.Gameplay`, and `Pet.Editor`.
+- Do not mirror deep folder paths into namespaces by default.
+- Only introduce a third namespace level when it is a stable module boundary rather than a transient folder detail.
+- Do not leave authored code in the global namespace.
+- Prefer assembly definitions to enforce architectural boundaries.
+- Default authored assemblies are `Pet.Runtime` and `Pet.Editor`.
+- Do not split runtime code into more assemblies unless there is a concrete reason such as compile-time pressure, dependency isolation, a durable reusable module boundary, or a formal automated test suite.
+
 Current practical guidance:
 
-- keep app startup in the bootstrap slice under `Assets/_Root/Scripts/Architecture/Bootstrap/`
-- keep scene loading ownership in `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- keep app startup entry points in `Assets/_Root/Scripts/Bootstrap/`
+- keep VContainer lifetime scopes in `Assets/_Root/Scripts/DI/`
+- keep scene loading ownership in `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
+- keep input ownership in `Assets/_Root/Scripts/Input/`
 - do not route unrelated feature logic through the bootstrap classes
 - do not treat test-style scripts under `Assets/_Root/Scripts/Test/` as production architecture anchors
 
@@ -130,15 +145,23 @@ Single-player assumptions should be stated explicitly when they are relied on.
 ## Related Files
 
 - `AGENTS.md`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
+- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/DI/GlobalScope.cs`
+- `Assets/_Root/Scripts/DI/MainMenuScope.cs`
+- `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/Input/InputActionsProvider.cs`
+- `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
 - `Assets/_Root/Scripts/UI/UiRoot.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
+- `Assets/_Root/Scripts/Pet.Runtime.asmdef`
+- `Assets/_Root/Scripts/Editor/Pet.Editor.asmdef`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `docs/unity/project-structure.md`
 

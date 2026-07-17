@@ -48,16 +48,29 @@ This is a project-layout document, not a full gameplay architecture document.
 
 ### Scripts
 
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
+- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/DI/GlobalScope.cs`
+- `Assets/_Root/Scripts/DI/MainMenuScope.cs`
+- `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/Input/InputActionsProvider.cs`
+- `Assets/_Root/Scripts/Input/InputActionObservableExtensions.cs`
+- `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
+- `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
+- `Assets/_Root/Scripts/Input/Player/PlayerInputState.cs`
+- `Assets/_Root/Scripts/Input/InputSystem_Actions.cs`
 - `Assets/_Root/Scripts/UI/UiRoot.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
+- `Assets/_Root/Scripts/Editor/BootstrapPlayModeRedirect.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
+- `Assets/_Root/Scripts/Pet.Runtime.asmdef`
+- `Assets/_Root/Scripts/Editor/Pet.Editor.asmdef`
 
 ### Settings Assets
 
@@ -65,19 +78,33 @@ This is a project-layout document, not a full gameplay architecture document.
 
 ## Current Script Notes
 
-Current authored scripts now include separate bootstrap, config, UI, and test slices.
+Current authored scripts now include separate bootstrap, DI, scene-loading, config, input, UI, editor, and test-style slices.
 
 Observed characteristics:
 
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs` is a VContainer `LifetimeScope`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs` is an `IAsyncStartable` entry point
+- `Assets/_Root/Scripts/DI/GlobalScope.cs` is a VContainer `LifetimeScope`
+- `Assets/_Root/Scripts/DI/MainMenuScope.cs` and `Assets/_Root/Scripts/DI/GameplayScope.cs` are scene-level VContainer scopes
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs` is an `IAsyncStartable` entry point
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs` and `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs` switch active input maps for their scenes
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs` is the current local `ScriptableObject` config root
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs` and `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs` are separate config asset types under the same local config layer
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs` wraps additive scene loading through `SceneManager`
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` wraps additive scene loading through `SceneManager`
+- `Assets/_Root/Scripts/Input/` contains the Unity Input System integration and reactive player input streams
 - `Assets/_Root/Scripts/UI/UiRoot.cs` exposes scene-authored UI references
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs` is the authored loading overlay view driven by injected config
 - `Assets/_Root/Scripts/UI/LoadingOverlayController.cs` is the plain C# wrapper used to drive the overlay
-- `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains in the `Test` namespace and is not the runtime architecture entry point
+- `Assets/_Root/Scripts/Editor/BootstrapPlayModeRedirect.cs` is editor-only play mode startup glue
+- `Assets/_Root/Scripts/Test/MainMenuTester.cs` remains a test-style runtime script and is not the runtime architecture entry point
+
+Current authored namespace baseline:
+
+- root namespaces stay short and use `Pet` or `Pet.X`
+- current authored namespaces include `Pet`, `Pet.UI`, `Pet.Input`, `Pet.Configs`, `Pet.MainMenu`, `Pet.Gameplay`, and `Pet.Editor`
+
+Current authored assembly baseline:
+
+- `Assets/_Root/Scripts/Pet.Runtime.asmdef`
+- `Assets/_Root/Scripts/Editor/Pet.Editor.asmdef`
 
 ## Startup Flow
 
@@ -95,7 +122,7 @@ Observed characteristics:
 - current config asset files:
   - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
   - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
-- registration site: `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
+- registration site: `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - current usage: `Assets/_Root/Scripts/UI/LoadingOverlay.cs` reads `ProjectConfig.UI.LoadingOverlay.FadeDuration`
 
 ## Package Notes
@@ -120,8 +147,6 @@ Current package-source notes:
 - `Packages/manifest.json` defines the `package.openupm.com` scoped registry for `jp.hadashikick.vcontainer`
 - `com.cysharp.r3`, `com.cysharp.unitask`, and `com.github-glitchenzo.nugetforunity` are Git-based package dependencies
 
-This indicates the project already has package-level support for reactive gameplay/UI flows, async gameplay flows, NuGet-backed package intake in the editor, DI, asset delivery, navigation, camera/cinematic workflows, UI, input, URP, and testing, even though authored gameplay systems are still minimal.
-
 ## Conventions
 
 - authored content is grouped under `Assets/_Root/`
@@ -131,15 +156,23 @@ This indicates the project already has package-level support for reactive gamepl
 
 ## Related Files
 
-- `Assets/_Root/Scripts/Architecture/Bootstrap/Bootstrap.cs`
-- `Assets/_Root/Scripts/Architecture/Bootstrap/GlobalScope.cs`
-- `Assets/_Root/Scripts/Architecture/SceneLoading/SceneLoader.cs`
+- `AGENTS.md`
+- `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
+- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/DI/GlobalScope.cs`
+- `Assets/_Root/Scripts/DI/MainMenuScope.cs`
+- `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/Input/InputActionsProvider.cs`
+- `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
 - `Assets/_Root/Scripts/UI/UiRoot.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
 - `Assets/_Root/Scripts/UI/LoadingOverlayController.cs`
+- `Assets/_Root/Scripts/Editor/BootstrapPlayModeRedirect.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 - `Assets/_Root/Scenes/MainMenu.unity`
 - `Assets/_Root/Scenes/Bootstrap.unity`

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Architecture.Input.Player
+namespace Pet.Input
 {
     public readonly struct PlayerInputState
     {

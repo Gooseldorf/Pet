@@ -1,10 +1,10 @@
 using System.Threading;
-using Architecture.Configs;
 using Cysharp.Threading.Tasks;
+using Pet.Configs;
 using UnityEngine;
 using VContainer;
 
-namespace Architecture.UI
+namespace Pet.UI
 {
     public class LoadingOverlay : MonoBehaviour
     {

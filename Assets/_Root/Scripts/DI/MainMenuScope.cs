@@ -1,13 +1,13 @@
 using VContainer;
 using VContainer.Unity;
 
-namespace Architecture.Gameplay
+namespace Pet.MainMenu
 {
-    public class GameplayScope : LifetimeScope
+    public class MainMenuScope : LifetimeScope
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterEntryPoint<GameplayEntryPoint>();
+            builder.RegisterEntryPoint<MainMenuEntryPoint>();
         }
     }
 }

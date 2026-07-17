@@ -20,6 +20,8 @@
 - Private fields use `camelCase` without `_` prefix.
 - `const` fields use `UPPER_SNAKE_CASE` names such as `BOOTSTRAP_SCENE_NAME`.
 - Do not put multiple classes or structs in one `.cs` file; prefer one top-level type per file.
+- Authored namespaces should stay short: prefer `Pet` or `Pet.X`; do not mirror deep folder paths into namespaces unless a third level is a stable module boundary.
+- Assembly boundaries should carry architectural isolation; default authored assemblies are `Pet.Runtime` and `Pet.Editor` unless there is a concrete reason to split runtime further or introduce formal test assemblies.
 - Any authored config type should be a `ScriptableObject`.
 - `CreateAssetMenu` paths for authored types should start with `Configs/` and mirror the project folder structure from there.
 - Prefer typed serialized references over `GameObject` + `GetComponent`.

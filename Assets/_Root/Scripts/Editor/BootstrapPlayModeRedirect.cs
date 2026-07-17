@@ -4,44 +4,45 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[InitializeOnLoad]
-public static class BootstrapPlayModeRedirect
+namespace Pet.Editor
 {
-    private const string BOOTSTRAP_SCENE_NAME = "Bootstrap";
-    private const string BOOTSTRAP_SCENE_PATH = "Assets/_Root/Scenes/Bootstrap.unity";
-    
-    private const string MENU_SCENE_NAME = "MainMenu";
-    private const string GAMEPLAY_SCENE_NAME = "Gameplay";
-
-    static BootstrapPlayModeRedirect()
+    [InitializeOnLoad]
+    public static class BootstrapPlayModeRedirect
     {
-        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-    }
+        private const string BOOTSTRAP_SCENE_PATH = "Assets/_Root/Scenes/Bootstrap.unity";
+        private const string MENU_SCENE_NAME = "MainMenu";
+        private const string GAMEPLAY_SCENE_NAME = "Gameplay";
 
-    private static void OnPlayModeStateChanged(PlayModeStateChange state)
-    {
-        if (state != PlayModeStateChange.ExitingEditMode)
+        static BootstrapPlayModeRedirect()
         {
-            return;
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
-        Scene activeScene = SceneManager.GetActiveScene();
-        if (activeScene.name is MENU_SCENE_NAME or GAMEPLAY_SCENE_NAME)
+        private static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            SceneAsset bootstrapScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(BOOTSTRAP_SCENE_PATH);
-            if (bootstrapScene == null)
+            if (state != PlayModeStateChange.ExitingEditMode)
             {
-                Debug.LogError($"Bootstrap scene not found at path: {BOOTSTRAP_SCENE_PATH}");
-                EditorSceneManager.playModeStartScene = null;
                 return;
             }
 
-            EditorSceneManager.playModeStartScene = bootstrapScene;
-            return;
-        }
+            Scene activeScene = SceneManager.GetActiveScene();
+            if (activeScene.name is MENU_SCENE_NAME or GAMEPLAY_SCENE_NAME)
+            {
+                SceneAsset bootstrapScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(BOOTSTRAP_SCENE_PATH);
+                if (bootstrapScene == null)
+                {
+                    Debug.LogError($"Bootstrap scene not found at path: {BOOTSTRAP_SCENE_PATH}");
+                    EditorSceneManager.playModeStartScene = null;
+                    return;
+                }
 
-        EditorSceneManager.playModeStartScene = null;
+                EditorSceneManager.playModeStartScene = bootstrapScene;
+                return;
+            }
+
+            EditorSceneManager.playModeStartScene = null;
+        }
     }
 }
 #endif

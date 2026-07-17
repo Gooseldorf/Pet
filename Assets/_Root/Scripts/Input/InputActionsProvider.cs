@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.InputSystem;
 
-namespace Architecture.Input
+namespace Pet.Input
 {
     public class InputActionsProvider : IDisposable
     {

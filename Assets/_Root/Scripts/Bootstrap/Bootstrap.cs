@@ -1,9 +1,8 @@
 using System.Threading;
-using Architecture.SceneLoading;
 using Cysharp.Threading.Tasks;
 using VContainer.Unity;
 
-namespace Architecture.Bootstrap
+namespace Pet
 {
     public class Bootstrap : IAsyncStartable
     {

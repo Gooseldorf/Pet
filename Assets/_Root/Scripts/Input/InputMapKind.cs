@@ -1,4 +1,4 @@
-namespace Architecture.Input
+namespace Pet.Input
 {
     public enum InputMapKind
     {

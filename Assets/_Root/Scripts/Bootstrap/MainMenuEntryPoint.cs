@@ -1,7 +1,7 @@
-using Architecture.Input;
+using Pet.Input;
 using VContainer.Unity;
 
-namespace Architecture.MainMenu
+namespace Pet.MainMenu
 {
     public class MainMenuEntryPoint : IStartable
     {

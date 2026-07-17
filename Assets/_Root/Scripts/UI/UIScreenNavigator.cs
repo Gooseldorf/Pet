@@ -69,6 +69,20 @@ namespace Pet.UI
             return true;
         }
 
+        public void Clear()
+        {
+            if (currentScreen != null)
+            {
+                uiInstanceFactory.Release(currentScreen);
+            }
+
+            while (history.Count > 0)
+            {
+                UIScreenHandle hiddenScreen = history.Pop();
+                uiInstanceFactory.Release(hiddenScreen);
+            }
+        }
+
         public async UniTask ClearAsync(CancellationToken cancellation = default)
         {
             if (currentScreen != null)

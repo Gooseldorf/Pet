@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Pet.UI;
@@ -45,6 +46,11 @@ namespace Pet
 
         public async UniTask SwitchToSceneAsync(string sceneName, CancellationToken cancellation = default)
         {
+            await SwitchToSceneAsync(sceneName, null, cancellation);
+        }
+
+        public async UniTask SwitchToSceneAsync(string sceneName, Func<CancellationToken, UniTask> onLoadingOverlayShown, CancellationToken cancellation = default)
+        {
             Scene targetScene = SceneManager.GetSceneByName(sceneName);
             bool targetAlreadyLoaded = targetScene.isLoaded;
             bool hasOtherLoadedContentScenes = HasLoadedContentSceneExcept(sceneName);
@@ -59,6 +65,11 @@ namespace Pet
 
             try
             {
+                if (onLoadingOverlayShown != null)
+                {
+                    await onLoadingOverlayShown(cancellation);
+                }
+
                 if (!targetAlreadyLoaded)
                 {
                     using (LifetimeScope.EnqueueParent(lifetimeScope))

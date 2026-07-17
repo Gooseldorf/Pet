@@ -330,6 +330,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   projectConfig: {fileID: 11400000, guid: 9d4bfafa41b2f4442ac256b9aeb84470, type: 2}
+  loadingOverlayConfig: {fileID: 11400000, guid: 8afbb38971d3f174fa7ad3d0f90c765c, type: 2}
   uiRoot: {fileID: 2121403410}
 --- !u!4 &747176365
 Transform:

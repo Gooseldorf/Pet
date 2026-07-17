@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -29,12 +30,12 @@ public static class TweenUtilities
             .OnComplete(() => target.DOScale(initialScale, duration / 2).SetEase(easing));
     }
 
-    public static UniTask WaitForCompletion(this Tweener tween)
+    public static UniTask WaitForCompletion(this Tweener tween, CancellationToken cancellationToken)
     {
         /*if (tween == null) return UniTask.CompletedTask;*/
         if (!tween.IsActive() || tween.IsComplete()) 
             return UniTask.CompletedTask;
 
-        return UniTask.WaitWhile(() => tween.IsActive() && !tween.IsComplete());
+        return UniTask.WaitWhile(() => tween.IsActive() && !tween.IsComplete(), cancellationToken: cancellationToken);
     }
 }

@@ -5,6 +5,5 @@ namespace Pet.Configs
     [CreateAssetMenu(fileName = "ProjectConfig", menuName = "Configs/Project Config")]
     public class ProjectConfig : ScriptableObject
     {
-        [field: SerializeField] public UIConfig UI { get; private set; }
     }
 }

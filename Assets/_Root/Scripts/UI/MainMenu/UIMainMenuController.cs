@@ -41,8 +41,14 @@ namespace Pet.MainMenu
         private async UniTaskVoid StartGameplayAsync()
         {
             CancellationToken cancellation = disposeCancellationTokenSource.Token;
-            await screenNavigator.ClearAsync(cancellation);
-            await sceneLoader.SwitchToSceneAsync("Gameplay", cancellation);
+            await sceneLoader.SwitchToSceneAsync("Gameplay", ClearUiAfterLoadingOverlayShownAsync, cancellation);
+        }
+
+        private UniTask ClearUiAfterLoadingOverlayShownAsync(CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            screenNavigator.Clear();
+            return UniTask.CompletedTask;
         }
     }
 }

@@ -786,6 +786,8 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
+  gameplayHudConfig: {fileID: 11400000, guid: d46362a1044d7d647831db07ecc1507f, type: 2}
+  pauseMenuConfig: {fileID: 11400000, guid: 37dfe5c02a9ef2a43bee52bf9e7cab5a, type: 2}
 --- !u!1001 &4835827914620471874
 PrefabInstance:
   m_ObjectHideFlags: 0

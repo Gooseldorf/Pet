@@ -32,6 +32,31 @@ Related docs:
 
 - `../project-map.md`
 - `../unity/project-structure.md`
+
+### Project-local UI coding skills added
+
+Status: completed
+
+Summary:
+
+- The repository now has dedicated OpenCode skills for project-specific UI flow implementation and UI architecture review.
+
+Impact:
+
+- agents can now trigger UI guidance that matches this repository's layered `Screen`/`Popup`/`Hud`/`Overlay` model instead of relying only on generic Unity feature instructions
+- UI changes can more consistently land in the correct scope, module, and prefab-config wiring path
+- review prompts about UI placement and back/navigation behavior now have a focused project-local skill target
+
+Key artifacts:
+
+- `.opencode/skills/unity-ui-flow-implementation/SKILL.md`
+- `.opencode/skills/unity-ui-flow-review/SKILL.md`
+- `docs/ai/coding-skills.md`
+
+Related docs:
+
+- `../ai/coding-skills.md`
+- `../project-map.md`
 - `../unity/runtime-architecture-guidelines.md`
 
 ### CI/CD module established
@@ -126,10 +151,10 @@ Impact:
 Key artifacts:
 
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
-- `Assets/_Root/Scripts/Configs/UI/UIConfig.cs`
-- `Assets/_Root/Scripts/Configs/UI/LoadingOverlayConfig.cs`
+- `Assets/_Root/Scripts/UI/UIConfig.cs`
+- `Assets/_Root/Scripts/UI/LoadingScreen/UILoadingOverlayConfig.cs`
 - `Assets/_Root/Scripts/DI/GlobalScope.cs`
-- `Assets/_Root/Scripts/UI/LoadingOverlay.cs`
+- `Assets/_Root/Scripts/UI/LoadingScreen/UILoadingOverlay.cs`
 
 Related docs:
 
@@ -222,3 +247,56 @@ Related docs:
 
 - `../ai/assistant-entrypoint.md`
 - `../unity/runtime-architecture-guidelines.md`
+
+### Runtime UI flow foundation established
+
+Status: completed
+
+Summary:
+
+- The runtime UI layer now has shared screen navigation, popup queuing, back-routing, and prefab-config-driven view instantiation.
+
+Impact:
+
+- UI flow can now grow around explicit screen, popup, HUD, and overlay layers instead of a single global UI manager
+- `MainMenu` and `Gameplay` now plug into the same UI flow primitives while keeping scene-specific behavior in focused controllers
+- scene transitions between `MainMenu` and `Gameplay` now have a dedicated content-scene switch path in `SceneLoader`
+
+Key artifacts:
+
+- UI root and bases: `Assets/_Root/Scripts/UI/UIRoot.cs`, `Assets/_Root/Scripts/UI/Base/UIViewBase.cs`, `Assets/_Root/Scripts/UI/Base/UIScreenViewBase.cs`, `Assets/_Root/Scripts/UI/Base/UIPopupViewBase.cs`
+- UI configs and runtime flow: `Assets/_Root/Scripts/UI/Base/UIScreenConfigBase.cs`, `Assets/_Root/Scripts/UI/Base/UIPopupConfigBase.cs`, `Assets/_Root/Scripts/UI/UIConfig.cs`, `Assets/_Root/Scripts/UI/UIInstanceFactory.cs`, `Assets/_Root/Scripts/UI/UIScreenNavigator.cs`, `Assets/_Root/Scripts/UI/UIPopupCoordinator.cs`, `Assets/_Root/Scripts/UI/UIBackRouter.cs`, `Assets/_Root/Scripts/UI/UIBackInputListener.cs`, `Assets/_Root/Scripts/UI/LoadingScreen/UILoadingOverlay.cs`, `Assets/_Root/Scripts/UI/LoadingScreen/UILoadingOverlayController.cs`
+- feature flow: `Assets/_Root/Scripts/UI/MainMenu/UIMainMenuController.cs`, `Assets/_Root/Scripts/UI/MainMenu/UIMainMenuScreenView.cs`, `Assets/_Root/Scripts/UI/Gameplay/Hud/UIHudController.cs`, `Assets/_Root/Scripts/UI/Gameplay/UIGameplayController.cs`, `Assets/_Root/Scripts/UI/Gameplay/PauseMenu/UIPauseMenuController.cs`, `Assets/_Root/Scripts/UI/Gameplay/PauseMenu/UIPausePopupView.cs`
+- scene switching: `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/runtime-architecture-guidelines.md`
+
+### Authored content layout expanded beyond scenes, prefabs, and scripts
+
+Status: completed
+
+Summary:
+
+- `Assets/_Root/` now has explicit top-level homes for authored config assets, models, materials, and animation content in addition to scenes, prefabs, scripts, and settings.
+
+Impact:
+
+- docs and agent retrieval can now distinguish config asset instances from config type definitions
+- authored non-code assets now have stable top-level locations instead of being implicit or undocumented
+- Unity layout docs should treat `Assets/_Root/Configs/` as the asset home while config type definitions remain in `Assets/_Root/Scripts/`
+
+Key artifacts:
+
+- `Assets/_Root/Configs/`
+- `Assets/_Root/Models/`
+- `Assets/_Root/Materials/`
+- `Assets/_Root/Animations/`
+- `Assets/_Root/Prefabs/UI/`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`

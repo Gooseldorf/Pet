@@ -70,6 +70,32 @@ Primary concerns:
 
 Use even when the feature appears small if state can diverge between peers.
 
+### `unity-ui-flow-implementation`
+
+Use for project-specific Unity UI work that should follow the shared screen, popup, HUD, and overlay flow already established under `Assets/_Root/Scripts/UI/`.
+
+Primary concerns:
+
+- choosing the correct UI primitive
+- preserving config-driven prefab wiring and VContainer scopes
+- keeping shared flow separate from scene-specific UI controllers
+- explicit Unity Editor follow-up when prefabs, config assets, or Inspector references must be wired
+
+Use this when the task is concretely about implementing or changing UI flow in this project, not just generic Unity feature work.
+
+### `unity-ui-flow-review`
+
+Use for project-specific UI architecture review and placement decisions.
+
+Primary concerns:
+
+- whether something should be a screen, popup, HUD, or overlay
+- whether behavior belongs in shared flow or a scene slice
+- whether a proposal fits the existing UI navigation, popup queue, back flow, and DI wiring
+- avoiding duplicate managers and scene-local shortcuts that bypass the established UI layer
+
+Use this before implementation when the main question is architectural fit.
+
 ## Relationship To `AGENTS.md`
 
 `AGENTS.md` remains the always-on baseline for project constraints.
@@ -82,6 +108,8 @@ The local coding skills add task-specific workflow and review pressure on top of
 - `.opencode/skills/unity-refactor-aposd/SKILL.md`
 - `.opencode/skills/unity-architecture-review/SKILL.md`
 - `.opencode/skills/unity-multiplayer-review/SKILL.md`
+- `.opencode/skills/unity-ui-flow-implementation/SKILL.md`
+- `.opencode/skills/unity-ui-flow-review/SKILL.md`
 - `AGENTS.md`
 - `docs/unity/runtime-architecture-guidelines.md`
 

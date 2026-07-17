@@ -19,6 +19,7 @@
 
 - Private fields use `camelCase` without `_` prefix.
 - `const` fields use `UPPER_SNAKE_CASE` names such as `BOOTSTRAP_SCENE_NAME`.
+- In authored C# code, do not use fully qualified type names such as `Pet.Gameplay.UIHudView` when a `using` directive can resolve the type; prefer `using` imports instead.
 - Do not put multiple classes or structs in one `.cs` file; prefer one top-level type per file.
 - Authored namespaces should stay short: prefer `Pet` or `Pet.X`; do not mirror deep folder paths into namespaces unless a third level is a stable module boundary.
 - Assembly boundaries should carry architectural isolation; default authored assemblies are `Pet.Runtime` and `Pet.Editor` unless there is a concrete reason to split runtime further or introduce formal test assemblies.

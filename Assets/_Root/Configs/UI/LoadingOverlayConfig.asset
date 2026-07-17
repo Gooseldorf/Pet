@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f37276f788284158a1b53986929ff679, type: 3}
   m_Name: LoadingOverlayConfig
   m_EditorClassIdentifier: Assembly-CSharp::Architecture.Configs.LoadingOverlayConfig
-  <FadeDuration>k__BackingField: 2
+  <FadeDuration>k__BackingField: 1

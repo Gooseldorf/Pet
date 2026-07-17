@@ -6,18 +6,11 @@ using VContainer;
 
 namespace Pet.UI
 {
-    public class LoadingOverlay : MonoBehaviour
+    public class UILoadingOverlay : MonoBehaviour
     {
         [SerializeField] private CanvasGroup canvasGroup;
 
-        private ProjectConfig projectConfig;
         private int transitionVersion;
-
-        [Inject]
-        public void Construct(ProjectConfig projectConfig)
-        {
-            this.projectConfig = projectConfig;
-        }
 
         public void SetVisible(bool visible)
         {
@@ -26,39 +19,32 @@ namespace Pet.UI
             canvasGroup.interactable = visible;
         }
 
-        public UniTask ShowAsync(CancellationToken cancellation)
+        public async UniTask ShowAsync(float duration, CancellationToken cancellation)
         {
-            return FadeToAsync(1f, true, cancellation);
+            await FadeToAsync(duration, 1f, cancellation);
+            await UniTask.NextFrame(cancellation);
         }
 
-        public UniTask HideAsync(CancellationToken cancellation)
+        public UniTask HideAsync(float duration, CancellationToken cancellation)
         {
-            return FadeToAsync(0f, false, cancellation);
+            return FadeToAsync(duration, 0, cancellation);
         }
 
-        private async UniTask FadeToAsync(float targetAlpha, bool interactive, CancellationToken cancellation)
+        private async UniTask FadeToAsync(float duration, float targetAlpha, CancellationToken cancellation)
         {
             int version = ++transitionVersion;
-            float fadeDuration = projectConfig.UI.LoadingOverlay.FadeDuration;
-
-            canvasGroup.blocksRaycasts = interactive;
-            canvasGroup.interactable = interactive;
 
             float startAlpha = canvasGroup.alpha;
-            if (Mathf.Approximately(startAlpha, targetAlpha))
+            if (Mathf.Approximately(startAlpha, targetAlpha) || duration <= 0f)
             {
                 canvasGroup.alpha = targetAlpha;
                 return;
             }
+            
+            
 
-            if (fadeDuration <= 0f)
-            {
-                canvasGroup.alpha = targetAlpha;
-                return;
-            }
-
-            float elapsed = 0f;
-            while (elapsed < fadeDuration)
+            /*float elapsed = 0f;
+            while (elapsed < duration)
             {
                 cancellation.ThrowIfCancellationRequested();
 
@@ -68,7 +54,7 @@ namespace Pet.UI
                 }
 
                 elapsed += Time.unscaledDeltaTime;
-                float progress = Mathf.Clamp01(elapsed / fadeDuration);
+                float progress = Mathf.Clamp01(elapsed / duration);
                 canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, progress);
 
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellation);
@@ -77,7 +63,7 @@ namespace Pet.UI
             if (version != transitionVersion)
             {
                 return;
-            }
+            }*/
 
             canvasGroup.alpha = targetAlpha;
         }

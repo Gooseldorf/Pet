@@ -6,6 +6,32 @@ This page records notable technical milestones that should not live only in chat
 
 ## Milestones
 
+### Spider player controller roadmap and local implementation skill established
+
+Status: completed
+
+Summary:
+
+- The repository now has a dedicated source-of-truth roadmap for the player-controlled spider plus a project-local skill for implementing that controller in staged increments.
+
+Impact:
+
+- future spider-player work can follow a stable implementation order instead of redesigning the controller each turn
+- the project now has an explicit boundary between locomotion core, jump, web traversal, camera integration, and later IK work
+- local agent guidance can now route spider-player tasks through a project-specific workflow instead of relying only on generic Unity implementation instructions
+
+Key artifacts:
+
+- `docs/unity/spider-player-controller-plan.md`
+- `.opencode/skills/unity-spider-player-implementation/SKILL.md`
+- `docs/ai/coding-skills.md`
+
+Related docs:
+
+- `../unity/spider-player-controller-plan.md`
+- `../ai/coding-skills.md`
+- `../project-map.md`
+
 ### Bootstrap scene and VContainer startup established
 
 Status: completed

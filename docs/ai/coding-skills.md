@@ -96,6 +96,19 @@ Primary concerns:
 
 Use this before implementation when the main question is architectural fit.
 
+### `unity-spider-player-implementation`
+
+Use for planned work on the player-controlled spider, especially when the task touches wall or ceiling traversal, arbitrary surface orientation, spider jumping, or web attach, pull, and swing behavior.
+
+Primary concerns:
+
+- following the staged roadmap in `docs/unity/spider-player-controller-plan.md`
+- preserving the component boundaries around `SpiderPlayerController`, surface, orientation, movement, jump, and web behavior
+- keeping locomotion, camera, and IK ownership separate
+- treating the feature as `single-player only` until multiplayer is explicitly designed
+
+Use this when the task is specifically about the spider player controller rather than generic Unity gameplay implementation.
+
 ## Relationship To `AGENTS.md`
 
 `AGENTS.md` remains the always-on baseline for project constraints.
@@ -110,8 +123,10 @@ The local coding skills add task-specific workflow and review pressure on top of
 - `.opencode/skills/unity-multiplayer-review/SKILL.md`
 - `.opencode/skills/unity-ui-flow-implementation/SKILL.md`
 - `.opencode/skills/unity-ui-flow-review/SKILL.md`
+- `.opencode/skills/unity-spider-player-implementation/SKILL.md`
 - `AGENTS.md`
 - `docs/unity/runtime-architecture-guidelines.md`
+- `docs/unity/spider-player-controller-plan.md`
 
 ## Related Docs
 

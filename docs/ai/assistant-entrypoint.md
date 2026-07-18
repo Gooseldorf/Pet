@@ -15,6 +15,7 @@ Read this file first when you need to orient quickly.
 | CI/CD, build, or deployment | `docs/systems/ci-cd.md` |
 | Unity authored layout | `docs/unity/project-structure.md` |
 | Unity runtime code shape or coding skills | `docs/unity/runtime-architecture-guidelines.md` |
+| spider player controller implementation | `docs/unity/spider-player-controller-plan.md` |
 | documentation maintenance | `docs/workflows/updating-docs.md` |
 | project history or recently established systems | `docs/history/milestones.md` |
 

@@ -249,6 +249,7 @@ Current authored namespace baseline:
 | Platform strategy | `docs/systems/platform-strategy.md` |
 | Unity authored layout | `docs/unity/project-structure.md` |
 | Unity runtime code guidance | `docs/unity/runtime-architecture-guidelines.md` |
+| Spider player controller roadmap | `docs/unity/spider-player-controller-plan.md` |
 | Documentation maintenance workflow | `docs/workflows/updating-docs.md` |
 | Notable project changes | `docs/history/milestones.md` |
 
@@ -262,3 +263,4 @@ Current authored namespace baseline:
 - `systems/platform-strategy.md`
 - `unity/project-structure.md`
 - `unity/runtime-architecture-guidelines.md`
+- `unity/spider-player-controller-plan.md`

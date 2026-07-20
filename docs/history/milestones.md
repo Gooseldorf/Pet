@@ -326,3 +326,57 @@ Related docs:
 
 - `../project-map.md`
 - `../unity/project-structure.md`
+
+### Spider controller stages 1 and 2 established
+
+Status: completed
+
+Summary:
+
+- The project now has the first authored player-spider runtime stack with explicit prefab-driven spawn flow, input-owned controller root, and stage-2 five-probe surface detection.
+
+Impact:
+
+- spider-controller work can now build forward from a stable root without revisiting ownership of spawn, config, and input initialization
+- surface orientation, adhesion, and movement stages now have a concrete `CurrentSurfaceState` boundary to build on
+- testing surface support became easier through the lightweight `GameplayTester` debug log entry point
+
+Key artifacts:
+
+- startup and DI: `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`, `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- spider runtime root: `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerSpawner.cs`, `Assets/_Root/Scripts/Gameplay/Spider/PlayerSpawnPoint.cs`
+- surface detection: `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceState.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceHit.cs`
+- debug support: `Assets/_Root/Scripts/Test/GameplayTester.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/runtime-architecture-guidelines.md`
+- `../unity/spider-player-controller-plan.md`
+
+### Explicit content-scene startup established
+
+Status: completed
+
+Summary:
+
+- `MainMenu` and `Gameplay` scene startup now runs through explicit scene-scoped entry points invoked by `SceneLoader` after `SetActiveScene`, instead of scene-level `IAsyncStartable` auto-start.
+
+Impact:
+
+- additive scene transitions now have a deterministic startup handoff owned by `SceneLoader`
+- runtime-spawned gameplay objects such as the spider player can initialize after the target content scene becomes active
+- scene-specific input-map setup, UI startup, and gameplay startup no longer depend on VContainer PlayerLoop timing for content scenes
+
+Key artifacts:
+
+- startup contract: `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs`
+- startup orchestration: `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
+- scene entry points: `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`, `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- scene scope registrations: `Assets/_Root/Scripts/DI/MainMenuScope.cs`, `Assets/_Root/Scripts/DI/GameplayScope.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`
+- `../unity/runtime-architecture-guidelines.md`

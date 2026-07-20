@@ -1,3 +1,4 @@
+using Pet;
 using Pet.UI;
 using VContainer;
 using VContainer.Unity;
@@ -16,9 +17,9 @@ namespace Pet.MainMenu
             
             //Controllers:
             builder.Register<UIMainMenuController>(Lifetime.Scoped);
-            
-            //Entry point:
-            builder.RegisterEntryPoint<MainMenuEntryPoint>();
+
+            //Scene startup:
+            builder.Register<ISceneEntryPoint, MainMenuEntryPoint>(Lifetime.Scoped);
         }
     }
 }

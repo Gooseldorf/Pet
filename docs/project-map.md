@@ -8,7 +8,7 @@ Use it to locate authored Unity content, runtime code, documentation entrypoints
 
 ## Project Summary
 
-`Pet` is a Unity project with a bootstrap-scene startup flow, VContainer composition roots, a reactive input slice based on Unity Input System and R3, and a shared UI flow layer that now spans `MainMenu` and `Gameplay` scenes.
+`Pet` is a Unity project with a bootstrap-scene startup flow, VContainer composition roots, explicit content-scene entry-point initialization, a reactive input slice based on Unity Input System and R3, and a shared UI flow layer that now spans `MainMenu` and `Gameplay` scenes.
 
 Long-term target platforms remain mobile and PC. The current automated delivery path is still WebGL through GitHub Pages.
 
@@ -52,6 +52,7 @@ Current script slices:
 - `Assets/_Root/Scripts/SceneLoading/` for additive scene loading and content-scene switching
 - `Assets/_Root/Scripts/Configs/` for root config types such as `ProjectConfig`
 - `Assets/_Root/Scripts/Input/` for Unity Input System integration and player input streams
+- `Assets/_Root/Scripts/Gameplay/` for authored gameplay runtime such as the spider player controller stack
 - `Assets/_Root/Scripts/UI/` for shared UI flow, base view types, UI config types, and scene-specific UI controllers
 - `Assets/_Root/Scripts/Utilities/` for reusable runtime helpers around item instantiation and DOTween-based animations
 - `Assets/_Root/Scripts/Test/` for test-style runtime scripts
@@ -62,6 +63,7 @@ Known script paths:
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
 - `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs`
 - `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - `Assets/_Root/Scripts/DI/MainMenuScope.cs`
 - `Assets/_Root/Scripts/DI/GameplayScope.cs`
@@ -74,6 +76,13 @@ Known script paths:
 - `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
 - `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
 - `Assets/_Root/Scripts/Input/Player/PlayerInputState.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerSpawner.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/PlayerSpawnPoint.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceState.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceHit.cs`
 - `Assets/_Root/Scripts/UI/UIRoot.cs`
 - `Assets/_Root/Scripts/UI/UIInstanceFactory.cs`
 - `Assets/_Root/Scripts/UI/UIScreenNavigator.cs`
@@ -106,14 +115,16 @@ Known script paths:
 - `Assets/_Root/Scripts/Utilities/InstantiateUtilities.cs`
 - `Assets/_Root/Scripts/Utilities/TweenUtilities.cs`
 - `Assets/_Root/Scripts/Editor/BootstrapPlayModeRedirect.cs`
+- `Assets/_Root/Scripts/Test/GameplayTester.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 Current observations:
 
 - `Bootstrap.unity` remains the startup scene in build settings
-- `SceneLoader` now supports both additive loading and switching between `MainMenu` and `Gameplay` while keeping `Bootstrap` loaded
+- `SceneLoader` now supports additive loading, explicit `SetActiveScene` handoff, and scene-scoped entry-point initialization while keeping `Bootstrap` loaded
 - the UI layer is organized into shared flow code plus focused `MainMenu`, `Gameplay/Hud`, `Gameplay/PauseMenu`, and `LoadingScreen` slices
 - the `Utilities` slice currently provides list population helpers for prefab-backed item collections and DOTween helper extensions for rotate/scale/wait flows
+- the `Gameplay` slice now contains the first authored spider-controller stack with explicit spawn flow, prefab-backed config ownership, and stage-2 surface probing
 - config type definitions are no longer stored only under `Assets/_Root/Scripts/Configs/`; UI-related config types now live near their UI modules under `Assets/_Root/Scripts/UI/`
 - config asset instances live under `Assets/_Root/Configs/`
 - authored code compiles through `Pet.Runtime` and `Pet.Editor` assembly definitions
@@ -132,7 +143,7 @@ Current startup flow:
 - `Assets/_Root/Scripts/DI/GlobalScope.cs` is the global VContainer lifetime scope
 - `GlobalScope` serializes and registers a local `ProjectConfig` plus the persistent `UIRoot`
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs` is registered as the initial entry point
-- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` loads `MainMenu` additively on startup
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` loads `MainMenu` additively on startup, sets content scenes active explicitly, and resolves `ISceneEntryPoint` from the loaded scene scope
 
 ## Local Config Layer
 

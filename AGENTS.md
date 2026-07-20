@@ -28,6 +28,9 @@
 - Prefer typed serialized references over `GameObject` + `GetComponent`.
 - Avoid `GameObject.Find`, `Transform.Find`, and other runtime hierarchy search to wire references; use them only when serialized fields, config references, or scene/prefab authoring cannot provide the reference.
 - Avoid defensive null-guard spam for required serialized/runtime fields; missing wiring should usually fail loudly.
+- Prefer explicit initialization entry points driven by composition or spawning code over `Start`, `OnEnable`, or similar Unity lifecycle callbacks when initialization order matters.
+- When runtime objects are instantiated from prefabs, prefer a small explicit spawner/bootstrap flow over scene-owned references or premature factory abstractions.
+- Do not add custom exception guards or defensive null checks for required DI dependencies, required serialized references, or required authored config. Let incorrect wiring fail loudly instead of masking ownership mistakes.
 - Prefer `UniTask` over `Task` for async gameplay code.
 
 ## Multiplayer Review

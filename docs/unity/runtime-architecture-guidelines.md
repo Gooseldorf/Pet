@@ -24,6 +24,7 @@ The main runtime foundation currently centers on:
 
 - `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs`
 - `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/UI/UIConfig.cs`
@@ -54,6 +55,9 @@ The main runtime foundation currently centers on:
 - `UIRoot` is a persistent shared UI anchor also registered by `GlobalScope`
 - `Bootstrap` is registered as an `IAsyncStartable` entry point
 - `SceneLoader` is the scene-loading abstraction and currently loads `MainMenu` on startup while also supporting switches to `Gameplay`
+- additive content scenes now start through explicit scene-scoped entry points rather than scene-level `IAsyncStartable` registration
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs` is the explicit startup contract for content scenes
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs` and `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs` are invoked explicitly by `SceneLoader` after `SceneManager.SetActiveScene(...)`
 
 This is currently the preferred shape for application startup in this repository.
 
@@ -100,6 +104,26 @@ Only do it when the split reduces cognitive load or isolates a real ownership bo
 - Prefer typed serialized references over `GameObject` references plus `GetComponent`.
 - Required references should usually fail loudly when not assigned correctly.
 - Do not compensate for missing authored wiring with broad defensive null handling.
+
+## Initialization Order
+
+- When initialization order matters, prefer explicit initialization methods driven by bootstrap, composition-root, or spawning code over `Start`, `OnEnable`, or other implicit Unity lifecycle callbacks.
+- Prefer a single clear startup flow such as `construct -> spawn -> inject -> initialize -> tick` instead of spreading ownership across multiple Unity callbacks.
+- Do not add secondary fallback initialization paths such as subscribing in both `OnEnable` and `Start` to compensate for unclear ordering.
+- For additive content scenes, prefer explicit scene startup invoked by `SceneLoader` after `SceneManager.SetActiveScene(...)` over scene-level `IStartable` or `IAsyncStartable` auto-start.
+- For `Rigidbody`-based gameplay controllers, it is acceptable to read the latest buffered input state in `FixedUpdate` while keeping one-shot input events queued separately between input callbacks and physics ticks.
+
+## Runtime Spawn Ownership
+
+- When a gameplay runtime object should be created from authored data, prefer storing its prefab on the owning `ScriptableObject` config.
+- Prefer a small focused spawner/bootstrap class for single well-defined spawn flows.
+- Do not introduce a separate factory abstraction until there is a real need such as multiple variants, pooling, respawn orchestration, or multiplayer ownership flow.
+
+## Failure Style
+
+- Required DI dependencies, required config references, and required serialized component references should usually fail loudly through normal execution instead of defensive null checks.
+- Do not add custom exception guards whose main purpose is to validate required authored wiring or required initialization sequencing.
+- Fix ownership and initialization flow at the source instead of layering protective runtime checks onto expected-required dependencies.
 
 ## Local Config Guidance
 
@@ -168,6 +192,7 @@ Single-player assumptions should be stated explicitly when they are relied on.
 - `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - `Assets/_Root/Scripts/DI/MainMenuScope.cs`
 - `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs`
 - `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs`
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs`
 - `Assets/_Root/Scripts/UI/UIConfig.cs`

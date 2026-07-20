@@ -68,6 +68,7 @@ This is a project-layout document, not a full gameplay architecture document.
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
 - `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs`
 - `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - `Assets/_Root/Scripts/DI/MainMenuScope.cs`
 - `Assets/_Root/Scripts/DI/GameplayScope.cs`
@@ -141,11 +142,12 @@ Observed characteristics:
 - `Assets/_Root/Scripts/DI/GlobalScope.cs` is the global VContainer `LifetimeScope`
 - `Assets/_Root/Scripts/DI/MainMenuScope.cs` and `Assets/_Root/Scripts/DI/GameplayScope.cs` are scene-level VContainer scopes
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs` is an `IAsyncStartable` entry point
-- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs` and `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs` switch active input maps for their scenes
+- `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs` and `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs` are explicit scene startup services resolved from their scene scopes
 - `Assets/_Root/Scripts/Configs/ProjectConfig.cs` is the local config root type
 - `Assets/_Root/Scripts/UI/UIConfig.cs` and `Assets/_Root/Scripts/UI/LoadingScreen/UILoadingOverlayConfig.cs` define shared UI config branches used by `ProjectConfig`
 - `Assets/_Root/Scripts/UI/MainMenu/UIMainMenuConfig.cs`, `Assets/_Root/Scripts/UI/Gameplay/Hud/UIHudConfig.cs`, and `Assets/_Root/Scripts/UI/Gameplay/PauseMenu/UIPauseMenuConfig.cs` are scene-specific UI config types
-- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` wraps additive scene loading and content-scene switching through `SceneManager`
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs` defines the explicit startup contract for content scenes
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` wraps additive scene loading, explicit `SetActiveScene` handoff, and content-scene startup through `SceneManager`
 - `Assets/_Root/Scripts/Input/` contains the Unity Input System integration and reactive player input streams
 - `Assets/_Root/Scripts/UI/UIRoot.cs` exposes shared UI layer transforms plus the loading overlay reference
 - `Assets/_Root/Scripts/UI/Base/` contains reusable view and config base types for screens and popups
@@ -175,6 +177,8 @@ Current authored assembly baseline:
 - `GlobalScope` serializes and registers `ProjectConfig` and `UIRoot`
 - `GlobalScope` registers `SceneLoader` and the `Bootstrap` entry point through VContainer
 - `Bootstrap` loads `MainMenu` additively
+- `SceneLoader` sets the loaded content scene active before resolving that scene's `ISceneEntryPoint`
+- `MainMenuEntryPoint` and `GameplayEntryPoint` are initialized explicitly instead of being registered through `RegisterEntryPoint<...>()`
 
 ## Local Config Layer
 
@@ -223,6 +227,7 @@ Current package-source notes:
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs`
 - `Assets/_Root/Scripts/Bootstrap/MainMenuEntryPoint.cs`
 - `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs`
 - `Assets/_Root/Scripts/DI/GlobalScope.cs`
 - `Assets/_Root/Scripts/DI/MainMenuScope.cs`
 - `Assets/_Root/Scripts/DI/GameplayScope.cs`

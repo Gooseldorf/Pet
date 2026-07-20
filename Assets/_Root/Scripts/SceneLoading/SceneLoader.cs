@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Pet.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 using VContainer.Unity;
 
 namespace Pet
@@ -37,6 +38,10 @@ namespace Pet
                 {
                     await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
                 }
+
+                scene = SceneManager.GetSceneByName(sceneName);
+                SceneManager.SetActiveScene(scene);
+                await InitializeSceneAsync(scene, cancellation);
             }
             finally
             {
@@ -80,13 +85,41 @@ namespace Pet
                     targetScene = SceneManager.GetSceneByName(sceneName);
                 }
 
-                await UnloadOtherContentScenesAsync(sceneName);
                 SceneManager.SetActiveScene(targetScene);
+
+                if (!targetAlreadyLoaded)
+                {
+                    await InitializeSceneAsync(targetScene, cancellation);
+                }
+
+                await UnloadOtherContentScenesAsync(sceneName);
             }
             finally
             {
                 await loadingOverlayController.HideAsync(cancellation);
             }
+        }
+
+        private static async UniTask InitializeSceneAsync(Scene scene, CancellationToken cancellation)
+        {
+            LifetimeScope sceneLifetimeScope = FindSceneLifetimeScope(scene);
+            ISceneEntryPoint sceneEntryPoint = sceneLifetimeScope.Container.Resolve<ISceneEntryPoint>();
+            await sceneEntryPoint.InitializeAsync(cancellation);
+        }
+
+        private static LifetimeScope FindSceneLifetimeScope(Scene scene)
+        {
+            GameObject[] rootObjects = scene.GetRootGameObjects();
+
+            for (int i = 0; i < rootObjects.Length; i++)
+            {
+                if (rootObjects[i].TryGetComponent(out LifetimeScope sceneLifetimeScope))
+                {
+                    return sceneLifetimeScope;
+                }
+            }
+
+            throw new InvalidOperationException($"Scene '{scene.name}' does not contain a root LifetimeScope.");
         }
 
         private static bool HasLoadedContentSceneExcept(string sceneName)

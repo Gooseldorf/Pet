@@ -27,6 +27,7 @@ Primary concerns:
 - serialized wiring
 - minimal abstraction
 - clear ownership in `MonoBehaviour` or a small helper
+- explicit startup order when a feature touches additive-scene initialization or scene handoff
 - explicit Unity Editor follow-up when scene or prefab wiring is needed
 
 Do not use as the main skill for architecture-heavy refactors or multiplayer audits.

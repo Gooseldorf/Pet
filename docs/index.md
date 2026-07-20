@@ -16,6 +16,7 @@ It is written for both humans and coding agents:
 - `systems/ci-cd.md`: current WebGL build and deployment pipeline
 - `systems/platform-strategy.md`: current platform direction and how to interpret the temporary WebGL path
 - `unity/project-structure.md`: current Unity-authored content layout
+- `unity/runtime-architecture-guidelines.md`: current runtime ownership, startup, and initialization guidance
 - `unity/spider-player-controller-plan.md`: staged implementation roadmap for the player-controlled spider
 - `history/milestones.md`: notable project milestones
 

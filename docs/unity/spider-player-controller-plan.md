@@ -31,6 +31,38 @@ It does not define final camera tuning, prefab wiring details, or IK implementat
 - the web feature set includes `attach`, `pull`, and `swing`
 - camera integration comes later and should rotate with the spider through `Cinemachine`
 - procedural legs and IK should follow the stable movement core instead of driving it
+- initialization order should be explicit through spawn and bootstrap flow rather than `Start` or `OnEnable`
+- the spider should be instantiated from `SpiderConfig.Prefab` through a small spawner instead of scene-owned controller references
+- required authored wiring and DI dependencies should fail loudly instead of being wrapped in defensive null checks or custom exception guards
+
+## Current Implementation Status
+
+Completed so far:
+
+- `Stage 1: Controller Skeleton`
+- `Stage 2: Surface Detection`
+
+Current authored runtime shape:
+
+- `GameplayEntryPoint` is initialized explicitly by `SceneLoader` after `Gameplay` becomes the active scene, then spawns the spider through `SpiderPlayerSpawner`
+- `SpiderConfig` owns the spider prefab reference and probe tuning values
+- `SpiderPlayerController` is the runtime root for input, fixed-update ordering, and current surface state
+- `SpiderSurfaceComponent` performs five surface probes per physics tick using center, forward, backward, left, and right offsets
+- surface detection falls back from `SphereCast` to overlap sampling so already-touching surfaces can still be detected
+- `GameplayTester` can log the current spider surface state on `Keypad1`
+
+Current authored files:
+
+- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerSpawner.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/PlayerSpawnPoint.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceState.cs`
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceHit.cs`
+- `Assets/_Root/Scripts/Test/GameplayTester.cs`
 
 ## Target Architecture
 
@@ -161,6 +193,10 @@ Done when:
 - config data is injected or serialized in an authored way
 - later behavior can be added without changing the root ownership model
 
+Current result:
+
+- done through `SpiderPlayerSpawner`, `SpiderConfig.Prefab`, and explicit `SpiderPlayerController.Initialize()` startup flow
+
 ### Stage 2: Surface Detection
 
 Goal:
@@ -179,6 +215,10 @@ Done when:
 
 - floor, wall, and ceiling surfaces are detected consistently
 - the controller keeps useful support data through simple transitions and corners
+
+Current result:
+
+- done at the first authored slice through five sphere-based probes and overlap fallback support for already-touching surfaces
 
 ### Stage 3: Orientation And Adhesion
 

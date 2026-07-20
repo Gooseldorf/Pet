@@ -29,7 +29,8 @@ Read this file first when you need to orient quickly.
 - The current build settings include `Bootstrap`, `MainMenu`, and `Gameplay` scenes.
 - The project has a local `ScriptableObject` config layer with root type `Assets/_Root/Scripts/Configs/ProjectConfig.cs`, UI-related config types under `Assets/_Root/Scripts/UI/`, and config asset instances under `Assets/_Root/Configs/`.
 - Authored UI runtime components currently live under `Assets/_Root/Scripts/UI/` and are split into shared flow, `LoadingScreen`, `MainMenu`, and `Gameplay` slices.
-- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` performs additive scene loading and content-scene switching.
+- `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` performs additive scene loading, explicit `SetActiveScene` handoff, and content-scene startup.
+- `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs` is the explicit startup contract for `MainMenu` and `Gameplay` scene entry points.
 - Authored namespaces stay short and root at `Pet`, while `asmdef` boundaries carry stronger architectural isolation.
 - The current authored assembly baseline is `Assets/_Root/Scripts/Pet.Runtime.asmdef` plus `Assets/_Root/Scripts/Editor/Pet.Editor.asmdef`.
 - Long-term target platforms are mobile and PC.

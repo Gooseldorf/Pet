@@ -1,11 +1,11 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Pet.Input;
-using VContainer.Unity;
+using Pet;
 
 namespace Pet.MainMenu
 {
-    public class MainMenuEntryPoint : IAsyncStartable
+    public class MainMenuEntryPoint : ISceneEntryPoint
     {
         private readonly InputActionsProvider inputActionsProvider;
         private readonly UIMainMenuController mainMenuController;
@@ -16,7 +16,7 @@ namespace Pet.MainMenu
             this.mainMenuController = mainMenuController;
         }
 
-        public UniTask StartAsync(CancellationToken cancellation)
+        public UniTask InitializeAsync(CancellationToken cancellation)
         {
             inputActionsProvider.SetEnabledMaps(InputMapKind.UI);
             return mainMenuController.ShowAsync(cancellation);

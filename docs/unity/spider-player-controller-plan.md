@@ -41,20 +41,31 @@ Completed so far:
 
 - `Stage 1: Controller Skeleton`
 - `Stage 2: Surface Detection`
+- `Stage 4: Baseline Surface Movement`
+- first-pass camera spawn and bind integration
 
 Current authored runtime shape:
 
 - `GameplayEntryPoint` is initialized explicitly by `SceneLoader` after `Gameplay` becomes the active scene, then spawns the spider through `SpiderPlayerSpawner`
+- `GameplayEntryPoint` now also spawns a gameplay camera rig through `CameraSpawner` and binds it to the spawned spider targets
+- `GameplayEntryPoint` also resolves the scene `Main Camera` from `GameplayScope` and assigns its transform to the spawned spider as the locomotion movement-reference frame
 - `SpiderConfig` owns the spider prefab reference and probe tuning values
+- `CameraConfig` owns the gameplay camera rig prefab reference
 - `SpiderPlayerController` is the runtime root for input, fixed-update ordering, and current surface state
+- `SpiderPlayerController` also exposes authored `cameraFollowTarget` and `cameraLookTarget` references for runtime camera binding
+- `SpiderPlayerController` now stores an explicit movement-reference transform used by locomotion rules
 - `SpiderSurfaceComponent` performs five surface probes per physics tick using center, forward, backward, left, and right offsets
 - surface detection falls back from `SphereCast` to overlap sampling so already-touching surfaces can still be detected
+- `SpiderMovementComponent` now maps move input through the scene `Main Camera` frame, then projects that frame onto the current traversal plane for floor, wall, and ceiling movement
 - `GameplayTester` can log the current spider surface state on `Keypad1`
 
 Current authored files:
 
 - `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
 - `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- `Assets/_Root/Scripts/Gameplay/Camera/CameraConfig.cs`
+- `Assets/_Root/Scripts/Gameplay/Camera/CameraRig.cs`
+- `Assets/_Root/Scripts/Gameplay/Camera/CameraSpawner.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerSpawner.cs`
@@ -130,11 +141,21 @@ Responsibilities:
 - hold feature toggles for staged rollout and testing
 - keep tuning out of scene objects where the values are shared controller behavior
 
+### Current Camera Integration
+
+Current implementation boundary:
+
+- camera runtime ownership lives in `Assets/_Root/Scripts/Gameplay/Camera/`
+- `CameraSpawner` instantiates a gameplay camera rig prefab from `CameraConfig`
+- `CameraRig` binds a spawned `CinemachineCamera` to `SpiderPlayerController.CameraFollowTarget` and `SpiderPlayerController.CameraLookTarget`
+- camera input is expected to be authored on the camera prefab with `CinemachineInputAxisController`, not driven through `IPlayerInputStreams`
+- the gameplay scene is expected to keep a single Unity `Main Camera` with `CinemachineBrain`
+- baseline spider locomotion currently uses the scene `Main Camera` transform as its camera-relative movement frame
+
 ### Later Components
 
 These should come after the movement core is stable:
 
-- `SpiderCameraComponent` or equivalent camera integration layer
 - `SpiderLegsComponent`
 - `SpiderIkComponent`
 
@@ -258,6 +279,10 @@ Done when:
 - the spider can move cleanly across floor, walls, and ceilings
 - controls remain readable when the spider inverts onto the ceiling
 
+Current result:
+
+- done through `SpiderMovementComponent` using a camera-relative movement frame supplied by `GameplayEntryPoint` from the scene `Main Camera`, with projection onto the current surface plane and fallback handling when camera forward approaches the surface normal
+
 ### Stage 5: Jump
 
 Goal:
@@ -346,11 +371,16 @@ Goal:
 
 - make traversal readable once the movement core is stable
 
+Current baseline:
+
+- camera rig spawn and player-target binding are now implemented through `CameraConfig`, `CameraSpawner`, and `CameraRig`
+- baseline camera-relative locomotion already uses the scene `Main Camera` transform as the movement reference for `SpiderMovementComponent`
+- final traversal-oriented tuning is still pending
+
 Implement later:
 
 - camera rotation that follows the spider's orientation
-- `Cinemachine` integration
-- camera-relative controls with arbitrary local up
+- traversal-oriented `Cinemachine` tuning on walls and ceilings
 - comfort tuning for floor, wall, and ceiling transitions
 
 Done when:

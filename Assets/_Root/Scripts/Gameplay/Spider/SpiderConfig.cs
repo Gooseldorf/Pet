@@ -33,6 +33,7 @@ namespace Pet.Gameplay
         [Header("Adhesion")]
         [SerializeField] private float adhesionForce = 30f;
         [SerializeField] private float surfaceStickSpeed = 3f;
+        [SerializeField] private float surfaceHoverOffset = 0.25f;
         [SerializeField] private float adhesionDeadZone = 0.05f;
 
         [Header("Airborne")]
@@ -55,6 +56,7 @@ namespace Pet.Gameplay
         public float OrientationSharpness => orientationSharpness;
         public float AdhesionForce => adhesionForce;
         public float SurfaceStickSpeed => surfaceStickSpeed;
+        public float SurfaceHoverOffset => surfaceHoverOffset;
         public float AdhesionDeadZone => adhesionDeadZone;
         public float AirborneGravity => airborneGravity;
     }

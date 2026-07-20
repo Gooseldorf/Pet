@@ -490,6 +490,8 @@ MonoBehaviour:
   bodyCollider: {fileID: 589952622906907717}
   visualRoot: {fileID: 2346376464914782657}
   probeOrigin: {fileID: 2346376464914782657}
+  cameraFollowTarget: {fileID: 2346376464914782657}
+  cameraLookTarget: {fileID: 2346376464914782657}
 --- !u!135 &589952622906907717
 SphereCollider:
   m_ObjectHideFlags: 0

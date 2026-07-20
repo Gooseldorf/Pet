@@ -380,3 +380,57 @@ Related docs:
 - `../project-map.md`
 - `../unity/project-structure.md`
 - `../unity/runtime-architecture-guidelines.md`
+
+### Gameplay camera spawn flow established
+
+Status: completed
+
+Summary:
+
+- `Gameplay` scene startup now includes explicit runtime spawn of a Cinemachine 3 camera rig from authored config, followed by target binding to the spawned spider player.
+
+Impact:
+
+- gameplay camera ownership now follows the same explicit prefab-backed startup style as the spider player instead of depending on scene-owned target references
+- camera target binding is now an authored spider-prefab concern through dedicated follow and look target references
+- camera input responsibility is now clearly split: project gameplay code owns player input, while the camera prefab is expected to own its Cinemachine input-controller wiring
+
+Key artifacts:
+
+- startup orchestration: `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- scene scope registration: `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- camera runtime slice: `Assets/_Root/Scripts/Gameplay/Camera/CameraConfig.cs`, `Assets/_Root/Scripts/Gameplay/Camera/CameraRig.cs`, `Assets/_Root/Scripts/Gameplay/Camera/CameraSpawner.cs`
+- spider camera targets: `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
+- runtime assembly reference: `Assets/_Root/Scripts/Pet.Runtime.asmdef`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/runtime-architecture-guidelines.md`
+- `../unity/spider-player-controller-plan.md`
+
+### Spider movement now uses scene Main Camera forward
+
+Status: completed
+
+Summary:
+
+- Spider locomotion is now camera-relative by default: gameplay startup resolves the scene `Main Camera`, passes its transform into the spawned spider controller, and movement projects that camera frame onto the active traversal plane.
+
+Impact:
+
+- floor, wall, and ceiling movement now follows the player's current gameplay view instead of the spider root's own forward axis
+- camera ownership stays split cleanly: the spawned `CameraRig` still owns Cinemachine follow/look binding, while the scene `Main Camera` is the explicit locomotion input frame
+- the movement core now has a documented fallback for near-degenerate cases where camera forward approaches the surface normal
+
+Key artifacts:
+
+- startup orchestration: `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- scene scope registration: `Assets/_Root/Scripts/DI/GameplayScope.cs`
+- locomotion runtime: `Assets/_Root/Scripts/Gameplay/Spider/SpiderMovementComponent.cs`
+- spider controller runtime: `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/spider-player-controller-plan.md`

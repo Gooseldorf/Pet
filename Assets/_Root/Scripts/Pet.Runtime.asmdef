@@ -5,6 +5,7 @@
         "UniTask",
         "VContainer",
         "R3.Unity",
+        "Unity.Cinemachine",
         "Unity.InputSystem",
         "Unity.TextMeshPro",
         "UnityEngine.UI",

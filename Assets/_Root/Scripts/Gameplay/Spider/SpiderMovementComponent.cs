@@ -35,7 +35,7 @@ namespace Pet.Gameplay
         {
             Vector3 surfaceNormal = surfaceState.SurfaceNormal;
             Vector3 currentPlanarVelocity = Vector3.ProjectOnPlane(currentVelocity, surfaceNormal);
-            Vector3 targetPlanarVelocity = CalculateSurfacePlanarTargetVelocity(controller.CurrentInputState, controller.transform, surfaceNormal);
+            Vector3 targetPlanarVelocity = CalculateSurfacePlanarTargetVelocity(controller.CurrentInputState, controller.MovementReference, surfaceNormal);
             float maxSurfaceSpeed = CalculateMaxSurfaceSpeed(fixedDeltaTime);
 
             if (targetPlanarVelocity.sqrMagnitude > maxSurfaceSpeed * maxSurfaceSpeed)
@@ -49,7 +49,10 @@ namespace Pet.Gameplay
                 config.MoveAcceleration * fixedDeltaTime);
 
             float currentNormalSpeed = Vector3.Dot(currentVelocity, surfaceNormal);
-            float targetNormalSpeed = CalculateSurfaceNormalTargetSpeed(surfaceState.SurfaceDistance, currentNormalSpeed, fixedDeltaTime);
+            float targetNormalSpeed = CalculateSurfaceNormalTargetSpeed(
+                surfaceState.SurfaceDistance,
+                currentNormalSpeed,
+                fixedDeltaTime);
 
             float nextNormalSpeed = Mathf.MoveTowards(
                 currentNormalSpeed,
@@ -71,7 +74,7 @@ namespace Pet.Gameplay
                 return nextVelocity;
             }
 
-            Vector3 targetLateralVelocity = CalculateAirborneLateralTargetVelocity(controller.CurrentInputState, controller.transform, localUp);
+            Vector3 targetLateralVelocity = CalculateAirborneLateralTargetVelocity(controller.CurrentInputState, controller.MovementReference, localUp);
             Vector3 nextLateralVelocity = Vector3.MoveTowards(
                 currentLateralVelocity,
                 targetLateralVelocity,
@@ -101,13 +104,15 @@ namespace Pet.Gameplay
             }
 
             float deadZone = Mathf.Max(config.AdhesionDeadZone, 0.001f);
+            float hoverOffset = Mathf.Max(config.SurfaceHoverOffset, 0f);
+            float distanceToTarget = surfaceDistance - hoverOffset;
 
-            if (surfaceDistance <= deadZone)
+            if (distanceToTarget <= deadZone)
             {
                 return Mathf.Min(currentNormalSpeed, 0f);
             }
 
-            float pullDistance = surfaceDistance - deadZone;
+            float pullDistance = distanceToTarget - deadZone;
             float maxPullSpeed = Mathf.Max(config.SurfaceStickSpeed, 0f);
             float desiredPullSpeed = Mathf.Min(maxPullSpeed, pullDistance / Mathf.Max(fixedDeltaTime, 0.0001f));
             return -desiredPullSpeed;
@@ -130,17 +135,30 @@ namespace Pet.Gameplay
             }
 
             Vector3 forward = Vector3.ProjectOnPlane(movementRoot.forward, planeNormal);
-            Vector3 right = Vector3.ProjectOnPlane(movementRoot.right, planeNormal);
 
-            if (forward.sqrMagnitude > 0f)
+            if (forward.sqrMagnitude <= MIN_DIRECTION_MAGNITUDE)
             {
-                forward.Normalize();
+                Vector3 projectedRight = Vector3.ProjectOnPlane(movementRoot.right, planeNormal);
+
+                if (projectedRight.sqrMagnitude <= MIN_DIRECTION_MAGNITUDE)
+                {
+                    return Vector3.zero;
+                }
+
+                projectedRight.Normalize();
+                forward = Vector3.Cross(projectedRight, planeNormal);
             }
 
-            if (right.sqrMagnitude > 0f)
+            forward.Normalize();
+
+            Vector3 right = Vector3.Cross(planeNormal, forward);
+
+            if (right.sqrMagnitude <= MIN_DIRECTION_MAGNITUDE)
             {
-                right.Normalize();
+                return Vector3.zero;
             }
+
+            right.Normalize();
 
             Vector3 moveDirection = (forward * moveInput.y) + (right * moveInput.x);
 

@@ -26,5 +26,13 @@ MonoBehaviour:
   probeOffset: 0.35
   maxMoveSpeed: 5
   moveAcceleration: 25
+  maxAirMoveSpeed: 3
+  airMoveAcceleration: 10
   orientationSharpness: 15
+  lookYawSpeed: 180
+  lookYawDeadZone: 0.01
   adhesionForce: 30
+  surfaceStickSpeed: 3
+  surfaceHoverOffset: 0.1
+  adhesionDeadZone: 0.05
+  airborneGravity: 18

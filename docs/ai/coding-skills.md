@@ -27,7 +27,9 @@ Primary concerns:
 - serialized wiring
 - minimal abstraction
 - clear ownership in `MonoBehaviour` or a small helper
+- composition-first design without mechanical over-splitting
 - explicit startup order when a feature touches additive-scene initialization or scene handoff
+- verification after meaningful changes
 - explicit Unity Editor follow-up when scene or prefab wiring is needed
 
 Do not use as the main skill for architecture-heavy refactors or multiplayer audits.
@@ -42,6 +44,7 @@ Primary concerns:
 - deep modules over shallow wrappers
 - hiding details inside the owning class or module
 - reducing change amplification across files
+- avoiding refactors that split code mechanically without improving ownership
 
 Do not use as the main skill for first-pass feature implementation unless cleanup is the main task.
 
@@ -55,6 +58,7 @@ Primary concerns:
 - avoiding framework leakage
 - choosing the lightest useful boundary
 - avoiding speculative layers
+- preferring composition without turning it into dogmatic micro-components
 
 Do not use as a replacement for concrete implementation guidance.
 
@@ -80,6 +84,7 @@ Primary concerns:
 - choosing the correct UI primitive
 - preserving config-driven prefab wiring and VContainer scopes
 - keeping shared flow separate from scene-specific UI controllers
+- respecting explicit startup order while allowing local subscription lifecycles where appropriate
 - explicit Unity Editor follow-up when prefabs, config assets, or Inspector references must be wired
 
 Use this when the task is concretely about implementing or changing UI flow in this project, not just generic Unity feature work.
@@ -94,6 +99,7 @@ Primary concerns:
 - whether behavior belongs in shared flow or a scene slice
 - whether a proposal fits the existing UI navigation, popup queue, back flow, and DI wiring
 - avoiding duplicate managers and scene-local shortcuts that bypass the established UI layer
+- avoiding UI decomposition that adds forwarding layers without clarifying ownership
 
 Use this before implementation when the main question is architectural fit.
 
@@ -106,6 +112,7 @@ Primary concerns:
 - following the staged roadmap in `docs/unity/spider-player-controller-plan.md`
 - preserving the explicit spawn and camera-binding boundary that remains in place while spider locomotion is being rewritten
 - keeping locomotion, camera, and IK ownership separate
+- preserving planned spider component boundaries without splitting code mechanically when a smaller step is clearer
 - treating the feature as `single-player only` until multiplayer is explicitly designed
 
 Use this when the task is specifically about the spider player controller rather than generic Unity gameplay implementation.
@@ -127,6 +134,7 @@ The local coding skills add task-specific workflow and review pressure on top of
 - `.opencode/skills/unity-spider-player-implementation/SKILL.md`
 - `AGENTS.md`
 - `docs/unity/runtime-architecture-guidelines.md`
+- `docs/unity/unity-composition-guide.md`
 - `docs/unity/spider-player-controller-plan.md`
 
 ## Related Docs

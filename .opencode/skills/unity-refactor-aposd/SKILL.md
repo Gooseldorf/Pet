@@ -37,6 +37,7 @@ Use this skill when asked to:
 - Prefer deep modules with small semantic interfaces over pass-through helpers and thin wrappers.
 - Keep related state, invariants, and behavior together unless a new boundary clearly hides complexity.
 - Do not split code just to make methods shorter if the new shape adds jumps and names without reducing reasoning cost.
+- Do not split files or classes mechanically to satisfy style metrics or a dogmatic component count.
 - Avoid exposing setup order, flags, or intermediate states when the owning class can define a stronger operation instead.
 - Hide UI formatting, counter bookkeeping, lookup details, or special-case handling inside the module that owns them.
 - Remove abstraction layers that add ceremony without isolating volatility or reducing caller knowledge.

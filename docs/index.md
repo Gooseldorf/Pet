@@ -17,7 +17,9 @@ It is written for both humans and coding agents:
 - `systems/platform-strategy.md`: current platform direction and how to interpret the temporary WebGL path
 - `unity/project-structure.md`: current Unity-authored content layout
 - `unity/runtime-architecture-guidelines.md`: current runtime ownership, startup, and initialization guidance
+- `unity/unity-composition-guide.md`: external composition-oriented Unity reference kept as a secondary guide
 - `unity/spider-player-controller-plan.md`: staged implementation roadmap for the player-controlled spider
+- `ai/external-agent-guidance.md`: external agent working-style note preserved as a secondary reference
 - `history/milestones.md`: notable project milestones
 
 ## Documentation Rules

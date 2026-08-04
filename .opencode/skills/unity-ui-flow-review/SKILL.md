@@ -58,6 +58,8 @@ Review proposals against these project facts:
 - Shared navigation, queueing, or back rules belong in the shared UI flow layer, not in scene-local views.
 - Scene-specific button behavior and opening logic belong in the scene slice controller.
 - View classes should stay focused on presentation and forwarding interaction.
+- Treat the established `View + Controller + Config` pattern as guidance for fit, not a reason to add forwarding layers that do not clarify ownership.
+- Distinguish simple local subscription lifecycles from UI flows that require explicit startup ownership or scene-entry ordering.
 - If a proposal only adds forwarding wrappers, presenters, or services around one concrete UI flow, treat that as suspect.
 - If the change can trigger gameplay state, authority, or network-visible effects, call out multiplayer review needs.
 

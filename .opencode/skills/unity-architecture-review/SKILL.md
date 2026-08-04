@@ -35,8 +35,11 @@ Use this skill when asked to:
 ## Review Rules
 
 - Gameplay and domain rules should not be inseparable from button handlers, TMP updates, or scene lookup details.
+- Prefer composition over inheritance for authored gameplay code unless inheritance expresses a real stable template or a clear `is-a` relationship.
 - Prefer plain C# types for reusable rules when that reduces Unity coupling and clarifies ownership.
 - Keep `MonoBehaviour` classes as orchestration and lifecycle glue when possible, but do not extract logic mechanically.
+- Treat micro-components, forwarding wrappers, or extra coordinators as suspect when they do not reduce cognitive load.
+- Distinguish acceptable local `Awake` or `OnEnable` wiring from cases that need explicit bootstrap, spawn, or scene-entry initialization.
 - Do not introduce service, repository, presenter, or use-case layers unless they solve a concrete problem in this codebase.
 - Framework details should stay near the edge of the behavior they support, not spread through the entire implementation.
 - Organize code by concrete behavior and ownership before generic technical buckets.

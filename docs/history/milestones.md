@@ -6,6 +6,35 @@ This page records notable technical milestones that should not live only in chat
 
 ## Milestones
 
+### Runtime composition and coding guidance refined from external agent notes
+
+Status: completed
+
+Summary:
+
+- The project guidance now explicitly folds in composition-first gameplay rules, local event-wiring guidance, bug-diagnosis expectations, and verification expectations from external agent notes while preserving existing project-specific architecture constraints.
+
+Impact:
+
+- authored gameplay work now has a clearer documented stance on composition over inheritance without turning that preference into mechanical over-splitting
+- local `Awake` plus `OnEnable`/`OnDisable` patterns are now documented as acceptable for simple scene-owned wiring without weakening the existing explicit-initialization rule for ordered startup
+- bug-fix and implementation guidance now explicitly calls for checking multiple plausible causes and verifying meaningful changes when feasible
+
+Key artifacts:
+
+- `AGENTS.md`
+- `docs/unity/runtime-architecture-guidelines.md`
+- `docs/ai/assistant-entrypoint.md`
+- `docs/project-map.md`
+- `docs/unity/unity-composition-guide.md`
+- `docs/ai/external-agent-guidance.md`
+
+Related docs:
+
+- `../unity/runtime-architecture-guidelines.md`
+- `../ai/assistant-entrypoint.md`
+- `../project-map.md`
+
 ### Spider locomotion stack intentionally removed pending rewrite
 
 Status: completed

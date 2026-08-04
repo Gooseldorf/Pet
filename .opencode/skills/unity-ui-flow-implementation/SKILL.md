@@ -61,9 +61,9 @@ Do not implement a popup as a screen or a screen as a HUD just because it is fas
 1. Identify whether the change belongs in shared flow or in a scene slice.
 2. Choose `Screen`, `Popup`, `Hud`, or `Overlay` explicitly.
 3. Follow the existing project pattern for that primitive:
-   - `View + Controller + Config` for screens and popups
-   - `View + Controller + Config` for HUD when prefab-backed runtime creation is needed
-   - overlay behavior should stay aligned with `UILoadingOverlay`
+    - `View + Controller + Config` for screens and popups
+    - `View + Controller + Config` for HUD when prefab-backed runtime creation is needed
+    - overlay behavior should stay aligned with `UILoadingOverlay`
 4. Put the code in the owning folder under `Assets/_Root/Scripts/UI/`.
 5. Register scene-specific configs and controllers in the relevant scope:
    - `Assets/_Root/Scripts/DI/MainMenuScope.cs`
@@ -81,6 +81,8 @@ Do not implement a popup as a screen or a screen as a HUD just because it is fas
 - Do not use `GameObject.Find`, `Transform.Find`, or broad runtime hierarchy search for UI wiring.
 - Do not add defensive null-guard noise for required authored references.
 - Prefer `SetCallbacks(...)` or existing controller-to-view orchestration patterns over introducing presenter layers.
+- Treat `View + Controller + Config` as a project UI pattern, not a universal requirement to invent extra layers where one focused owner is clearer.
+- Local `OnEnable` and `OnDisable` subscriptions are acceptable for simple UI-owned wiring, but they should not replace explicit startup flow when scene ordering matters.
 - Use `UniTask` for async UI flow to match the rest of the project.
 - Respect existing flow semantics:
   - screen history goes through `UIHistoryModeEnum`
@@ -102,6 +104,7 @@ When finishing work:
 2. name any files added or updated
 3. list required Unity Editor wiring, if any
 4. mention multiplayer implications when the UI can trigger gameplay state changes
+5. mention the verification step that was run, or why it was not feasible
 
 ## Related Files
 

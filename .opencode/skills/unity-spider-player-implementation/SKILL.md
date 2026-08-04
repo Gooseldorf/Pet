@@ -45,6 +45,7 @@ Do not use this as the main skill for unrelated UI flow, generic repo-wide refac
 4. Prefer extending the planned spider-specific components over scattering movement logic into unrelated `MonoBehaviour` classes.
 5. If the task requires prefab, scene, or Inspector wiring, state exactly what must be done in the Unity Editor.
 6. If the task reaches across milestones, stabilize the earlier milestone first instead of partially implementing multiple later systems.
+7. After a meaningful code change, run the most relevant feasible verification step.
 
 ## Stage Order
 
@@ -69,6 +70,7 @@ Do not pull camera or IK concerns earlier unless the user explicitly changes the
 - model spider traversal as arbitrary-surface movement with authored adhesion, not as a standard ground controller plus a separate climb mode
 - keep the root `SpiderPlayerController` as the scene-owned coordinator instead of a god-object full of movement math
 - keep surface detection, orientation, movement, jump, and web logic in their owning spider components when that split is already part of the roadmap
+- do not split spider logic mechanically into extra components if the current milestone is better served by a smaller focused owner
 - do not let web logic take ownership of baseline locomotion
 - do not let IK or leg-placement logic own gameplay traversal rules
 - treat the controller as `single-player only`; if a requested change would imply networking assumptions, state that multiplayer is not yet designed for this system
@@ -89,6 +91,7 @@ When finishing spider-player work:
 2. name the spider component boundaries that were changed
 3. list required Unity Editor wiring, if any
 4. state whether the change remains `single-player only`
+5. mention the verification step that was run, or why it was not feasible
 
 ## Related Files
 

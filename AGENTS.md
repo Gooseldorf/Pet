@@ -4,6 +4,10 @@
 - Surface ambiguity instead of making silent assumptions.
 - Prefer the simplest design that solves the real problem.
 - Keep changes surgical; avoid unrelated cleanup or speculative abstraction.
+- Prefer composition over inheritance for authored gameplay code unless inheritance expresses a real stable template or a clear `is-a` relationship.
+- Keep authored behaviors focused, but do not split code mechanically when one small `MonoBehaviour` or class is clearer than multiple shallow pieces.
+- Diagnose bugs by checking multiple plausible causes before committing to a fix.
+- Verify meaningful changes when feasible instead of deferring all validation.
 
 ## Project Knowledge Base
 
@@ -29,6 +33,7 @@
 - Avoid `GameObject.Find`, `Transform.Find`, and other runtime hierarchy search to wire references; use them only when serialized fields, config references, or scene/prefab authoring cannot provide the reference.
 - Avoid defensive null-guard spam for required serialized/runtime fields; missing wiring should usually fail loudly.
 - Prefer explicit initialization entry points driven by composition or spawning code over `Start`, `OnEnable`, or similar Unity lifecycle callbacks when initialization order matters.
+- `OnEnable`/`OnDisable` are acceptable for simple local event subscription lifecycles, but they should not replace explicit bootstrap or spawn-driven initialization when ordering matters.
 - When runtime objects are instantiated from prefabs, prefer a small explicit spawner/bootstrap flow over scene-owned references or premature factory abstractions.
 - Do not add custom exception guards or defensive null checks for required DI dependencies, required serialized references, or required authored config. Let incorrect wiring fail loudly instead of masking ownership mistakes.
 - Prefer `UniTask` over `Task` for async gameplay code.

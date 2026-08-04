@@ -256,7 +256,13 @@ Current authored namespace baseline:
 - authored content is grouped under `Assets/_Root/`
 - prefab names use the `pf_` prefix
 - required Unity references should generally be assigned through serialized fields rather than runtime hierarchy search
+- authored gameplay code prefers composition over inheritance, but should not be split mechanically when one focused owner is clearer
 - project-specific engineering constraints are defined in `AGENTS.md`
+
+Secondary reference docs:
+
+- `docs/unity/unity-composition-guide.md` preserves an external composition-oriented Unity reference used as a non-authoritative pattern library
+- `docs/ai/external-agent-guidance.md` preserves an external agent-style guidance note whose compatible subset has already been folded into project rules
 
 ## Source Of Truth By Topic
 
@@ -270,7 +276,9 @@ Current authored namespace baseline:
 | Platform strategy | `docs/systems/platform-strategy.md` |
 | Unity authored layout | `docs/unity/project-structure.md` |
 | Unity runtime code guidance | `docs/unity/runtime-architecture-guidelines.md` |
+| External Unity composition reference | `docs/unity/unity-composition-guide.md` |
 | Spider player controller roadmap | `docs/unity/spider-player-controller-plan.md` |
+| External agent guidance reference | `docs/ai/external-agent-guidance.md` |
 | Documentation maintenance workflow | `docs/workflows/updating-docs.md` |
 | Notable project changes | `docs/history/milestones.md` |
 

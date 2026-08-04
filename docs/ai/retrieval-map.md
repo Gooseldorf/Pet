@@ -13,8 +13,10 @@ This page helps agents retrieve project context with minimal searching.
 | build pipeline | `docs/systems/ci-cd.md` | Includes workflow path, triggers, secrets, failure modes |
 | Unity structure | `docs/unity/project-structure.md` | Includes scenes, prefabs, scripts, naming conventions |
 | Unity runtime code guidance | `docs/unity/runtime-architecture-guidelines.md` | Use for code ownership, MonoBehaviour boundaries, explicit additive-scene startup, and multiplayer review expectations |
+| external Unity composition examples | `docs/unity/unity-composition-guide.md` | Secondary reference for composition-first examples and component-oriented patterns |
 | spider player controller roadmap | `docs/unity/spider-player-controller-plan.md` | Use for staged spider controller implementation, boundaries, and milestone order |
 | local coding skills | `docs/ai/coding-skills.md` | Use to choose the right project skill for implementation or review work |
+| external agent working-style note | `docs/ai/external-agent-guidance.md` | Secondary reference for adopted engineering habits and preserved external guidance |
 | documentation process | `docs/workflows/updating-docs.md` | Use when creating or updating docs |
 | project milestones | `docs/history/milestones.md` | Use when you need historical context |
 | project-wide constraints | `AGENTS.md` | Engineering and Unity-specific rules |

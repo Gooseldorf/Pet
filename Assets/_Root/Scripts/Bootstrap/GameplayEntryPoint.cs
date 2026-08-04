@@ -38,7 +38,6 @@ namespace Pet.Gameplay
             CameraRig cameraRig = cameraSpawner.Spawn();
             CinemachineBrain brain = gameplayCamera.GetComponent<CinemachineBrain>();
             cameraRig.Bind(player, brain);
-            player.SetMovementReference(gameplayCamera.transform);
             inputActionsProvider.SetEnabledMaps(InputMapKind.PlayerAndUI);
             uiGameplayController.Initialize();
             await gameplayHudController.ShowAsync(cancellation);

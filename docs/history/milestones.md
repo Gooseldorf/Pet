@@ -6,6 +6,33 @@ This page records notable technical milestones that should not live only in chat
 
 ## Milestones
 
+### Spider locomotion stack intentionally removed pending rewrite
+
+Status: completed
+
+Summary:
+
+- The authored spider movement, surface-detection, orientation, adhesion, and debug stack has been removed so the controller can be rebuilt from a minimal spawn-plus-camera baseline.
+
+Impact:
+
+- the preserved spider runtime boundary is now explicit: spawn still flows through `GameplayEntryPoint` and `SpiderPlayerSpawner`, while camera binding still flows through `CameraSpawner` and `CameraRig`
+- `SpiderConfig` now only carries the spider prefab reference instead of stale movement tuning
+- future spider-controller work can restart from a clean baseline without carrying forward the removed locomotion contracts or probe model
+
+Key artifacts:
+
+- startup orchestration: `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- spider runtime root: `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerSpawner.cs`, `Assets/_Root/Scripts/Gameplay/Spider/PlayerSpawnPoint.cs`
+- camera runtime slice: `Assets/_Root/Scripts/Gameplay/Camera/CameraRig.cs`, `Assets/_Root/Scripts/Gameplay/Camera/CameraSpawner.cs`
+- removed runtime files: `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceState.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceHit.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderLookRotationComponent.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderMovementComponent.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderMovementResult.cs`, `Assets/_Root/Scripts/Test/GameplayTester.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`
+- `../unity/spider-player-controller-plan.md`
+
 ### Spider traversal camera up is now sourced from the player root
 
 Status: completed

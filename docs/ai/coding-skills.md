@@ -104,7 +104,7 @@ Use for planned work on the player-controlled spider, especially when the task t
 Primary concerns:
 
 - following the staged roadmap in `docs/unity/spider-player-controller-plan.md`
-- preserving the component boundaries around `SpiderPlayerController`, surface, orientation, movement, jump, and web behavior
+- preserving the explicit spawn and camera-binding boundary that remains in place while spider locomotion is being rewritten
 - keeping locomotion, camera, and IK ownership separate
 - treating the feature as `single-player only` until multiplayer is explicitly designed
 

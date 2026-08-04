@@ -81,7 +81,6 @@ This is a project-layout document, not a full gameplay architecture document.
 - `Assets/_Root/Scripts/Input/Player/IPlayerInputStreams.cs`
 - `Assets/_Root/Scripts/Input/Player/PlayerInputStreams.cs`
 - `Assets/_Root/Scripts/Input/Player/PlayerInputState.cs`
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderLookRotationComponent.cs`
 - `Assets/_Root/Scripts/UI/UIRoot.cs`
 - `Assets/_Root/Scripts/UI/UIConfig.cs`
 - `Assets/_Root/Scripts/UI/UIInstanceFactory.cs`
@@ -150,9 +149,7 @@ Observed characteristics:
 - `Assets/_Root/Scripts/SceneLoading/ISceneEntryPoint.cs` defines the explicit startup contract for content scenes
 - `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` wraps additive scene loading, explicit `SetActiveScene` handoff, and content-scene startup through `SceneManager`
 - `Assets/_Root/Scripts/Input/` contains the Unity Input System integration and reactive player input streams
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderLookRotationComponent.cs` aligns spider body up to the sampled surface while preserving body-tangent continuity and blending toward the projected camera movement-reference frame during sharp transitions
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs` now owns a hybrid forward-probe plus down-probe support check with overlap fallback and short wall-takeover confirmation
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs` now smooths the controller's local-up frame toward sampled normals and draws selected surface-probe gizmos in the editor
+- `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs` is currently a minimal spawned spider root that exposes authored camera follow/look targets for runtime camera binding
 - `Assets/_Root/Scripts/Gameplay/Camera/CameraRig.cs` binds follow/look targets and assigns `CinemachineBrain.WorldUpOverride` from the spawned spider root so traversal camera up follows the active surface
 - `Assets/_Root/Scripts/UI/UIRoot.cs` exposes shared UI layer transforms plus the loading overlay reference
 - `Assets/_Root/Scripts/UI/Base/` contains reusable view and config base types for screens and popups

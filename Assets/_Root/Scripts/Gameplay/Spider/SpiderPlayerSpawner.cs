@@ -1,5 +1,4 @@
 using UnityEngine;
-using VContainer;
 
 namespace Pet.Gameplay
 {
@@ -7,13 +6,11 @@ namespace Pet.Gameplay
     {
         private readonly SpiderConfig spiderConfig;
         private readonly PlayerSpawnPoint spiderSpawnPoint;
-        private readonly IObjectResolver objectResolver;
 
-        public SpiderPlayerSpawner(SpiderConfig spiderConfig, PlayerSpawnPoint spiderSpawnPoint, IObjectResolver objectResolver)
+        public SpiderPlayerSpawner(SpiderConfig spiderConfig, PlayerSpawnPoint spiderSpawnPoint)
         {
             this.spiderConfig = spiderConfig;
             this.spiderSpawnPoint = spiderSpawnPoint;
-            this.objectResolver = objectResolver;
         }
 
         public SpiderPlayerController Spawn()
@@ -23,8 +20,6 @@ namespace Pet.Gameplay
                 spiderSpawnPoint.transform.position,
                 spiderSpawnPoint.transform.rotation);
 
-            objectResolver.Inject(instance);
-            instance.Initialize();
             spiderSpawnPoint.gameObject.SetActive(false);
             return instance;
         }

@@ -80,13 +80,9 @@ Known script paths:
 - `Assets/_Root/Scripts/Gameplay/Camera/CameraRig.cs`
 - `Assets/_Root/Scripts/Gameplay/Camera/CameraSpawner.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderLookRotationComponent.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerSpawner.cs`
 - `Assets/_Root/Scripts/Gameplay/Spider/PlayerSpawnPoint.cs`
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs`
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceState.cs`
-- `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceHit.cs`
 - `Assets/_Root/Scripts/UI/UIRoot.cs`
 - `Assets/_Root/Scripts/UI/UIInstanceFactory.cs`
 - `Assets/_Root/Scripts/UI/UIScreenNavigator.cs`
@@ -119,7 +115,6 @@ Known script paths:
 - `Assets/_Root/Scripts/Utilities/InstantiateUtilities.cs`
 - `Assets/_Root/Scripts/Utilities/TweenUtilities.cs`
 - `Assets/_Root/Scripts/Editor/BootstrapPlayModeRedirect.cs`
-- `Assets/_Root/Scripts/Test/GameplayTester.cs`
 - `Assets/_Root/Scripts/Test/MainMenuTester.cs`
 
 Current observations:
@@ -128,13 +123,9 @@ Current observations:
 - `SceneLoader` now supports additive loading, explicit `SetActiveScene` handoff, and scene-scoped entry-point initialization while keeping `Bootstrap` loaded
 - the UI layer is organized into shared flow code plus focused `MainMenu`, `Gameplay/Hud`, `Gameplay/PauseMenu`, and `LoadingScreen` slices
 - the `Utilities` slice currently provides list population helpers for prefab-backed item collections and DOTween helper extensions for rotate/scale/wait flows
-- the `Gameplay` slice now contains the first authored spider-controller stack with explicit spawn flow, prefab-backed config ownership, hybrid forward-plus-down surface probing, and smoothed floor-to-wall transition handling
+- the `Gameplay` slice currently keeps only the spider spawn and camera-binding runtime boundary; previous spider locomotion and surface-detection code has been intentionally removed pending a rewrite
 - the `Gameplay` slice now also contains a Cinemachine 3 camera spawn flow built around `CameraConfig`, `CameraSpawner`, and `CameraRig`
 - the spawned gameplay camera now relies on `CameraRig` to set `CinemachineBrain.WorldUpOverride` from the spider root so wall and ceiling look remain traversal-relative
-- spider baseline movement is now camera-relative: `GameplayEntryPoint` resolves the scene `Main Camera` from `GameplayScope`, passes its transform into `SpiderPlayerController`, and `SpiderMovementComponent` projects that camera frame onto the current traversal plane
-- spider body look rotation now uses the same movement-reference camera frame through `SpiderLookRotationComponent`, but preserves body-tangent continuity and blends camera yaw during sharp floor-to-wall or wall-to-ceiling transitions
-- spider surface adhesion now targets a configurable hover offset above the sampled surface instead of pulling the rigidbody directly onto the contact plane
-- `SpiderPlayerController` now draws selected probe and reference-up gizmos in the editor to debug forward wall pickup, support normals, and transition state
 - config type definitions are no longer stored only under `Assets/_Root/Scripts/Configs/`; UI-related config types now live near their UI modules under `Assets/_Root/Scripts/UI/`
 - config asset instances live under `Assets/_Root/Configs/`
 - authored code compiles through `Pet.Runtime` and `Pet.Editor` assembly definitions
@@ -154,7 +145,7 @@ Current startup flow:
 - `GlobalScope` serializes and registers a local `ProjectConfig` plus the persistent `UIRoot`
 - `Assets/_Root/Scripts/Bootstrap/Bootstrap.cs` is registered as the initial entry point
 - `Assets/_Root/Scripts/SceneLoading/SceneLoader.cs` loads `MainMenu` additively on startup, sets content scenes active explicitly, and resolves `ISceneEntryPoint` from the loaded scene scope
-- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs` now spawns both the spider player and the gameplay camera rig, binds the camera to the spawned player targets, assigns the scene `CinemachineBrain` world-up override to the spider root through `CameraRig`, and assigns the scene `Main Camera` transform as the spider movement reference
+- `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs` now spawns both the spider player and the gameplay camera rig, binds the camera to the spawned player targets, and assigns the scene `CinemachineBrain` world-up override to the spider root through `CameraRig`
 
 ## Local Config Layer
 
@@ -196,7 +187,6 @@ Current authored camera-related prefab expectations:
 - the gameplay camera rig is intended to be spawned from a prefab referenced by `CameraConfig`
 - the spider prefab is expected to provide authored `cameraFollowTarget` and `cameraLookTarget` references for camera binding
 - the camera prefab is expected to own orbit behavior such as `CinemachineOrbitalFollow` binding mode; gameplay code should not override that mode at runtime
-- the scene `Main Camera` is also the current movement-reference source for camera-relative spider locomotion
 
 Observed naming convention:
 

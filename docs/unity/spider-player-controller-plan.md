@@ -48,15 +48,19 @@ Current authored runtime shape:
 
 - `GameplayEntryPoint` is initialized explicitly by `SceneLoader` after `Gameplay` becomes the active scene, then spawns the spider through `SpiderPlayerSpawner`
 - `GameplayEntryPoint` now also spawns a gameplay camera rig through `CameraSpawner` and binds it to the spawned spider targets
+- `GameplayEntryPoint` now also resolves the scene `CinemachineBrain` from the gameplay `Main Camera` and passes it into `CameraRig` so traversal camera up can follow the spider orientation
 - `GameplayEntryPoint` also resolves the scene `Main Camera` from `GameplayScope` and assigns its transform to the spawned spider as the locomotion movement-reference frame
 - `SpiderConfig` owns the spider prefab reference and probe tuning values
 - `CameraConfig` owns the gameplay camera rig prefab reference
 - `SpiderPlayerController` is the runtime root for input, fixed-update ordering, and current surface state
 - `SpiderPlayerController` also exposes authored `cameraFollowTarget` and `cameraLookTarget` references for runtime camera binding
-- `SpiderPlayerController` now stores an explicit movement-reference transform used by locomotion rules
-- `SpiderSurfaceComponent` performs five surface probes per physics tick using center, forward, backward, left, and right offsets
-- surface detection falls back from `SphereCast` to overlap sampling so already-touching surfaces can still be detected
-- `SpiderMovementComponent` now maps move input through the scene `Main Camera` frame, then projects that frame onto the current traversal plane for floor, wall, and ceiling movement
+- `SpiderPlayerController` now stores an explicit movement-reference transform used by locomotion rules, smooths its local-up frame toward sampled surface normals, and draws selected probe gizmos in the editor for transition debugging
+- `SpiderSurfaceComponent` now uses a hybrid support model built around one forward `SphereCast`, one down `SphereCast`, and a center overlap fallback instead of the earlier five-offset probe set
+- surface detection now requires short forward-hit confirmation before a wall normal takes over from a still-valid floor normal, reducing floor-to-wall oscillation at 90-degree corners
+- `SpiderLookRotationComponent` now preserves body-tangent continuity during sharp surface changes and blends camera-relative yaw influence instead of rebuilding forward only from the camera frame on the first wall contact
+- `SpiderMovementComponent` now maps move input through the scene `Main Camera` frame, then projects that frame onto the smoothed traversal plane for floor, wall, and ceiling movement
+- `CameraRig` now assigns `CinemachineBrain.WorldUpOverride` to the spawned spider root so wall and ceiling look controls use the spider's current traversal up instead of world up
+- camera orbit binding mode remains an authored camera-prefab concern and should be tuned on the prefab rather than forced from gameplay code
 - `GameplayTester` can log the current spider surface state on `Keypad1`
 
 Current authored files:
@@ -95,14 +99,15 @@ Responsibilities:
 - detect floor, wall, and ceiling support
 - sample surface probes with raycasts or spherecasts
 - produce stable `surfaceNormal`, `surfacePoint`, and support-state output
-- handle outer-corner and inner-corner transition cases
+- handle outer-corner and inner-corner transition cases through forward-hit confirmation and overlap fallback rules
 
-### `SpiderOrientationComponent`
+### `SpiderLookRotationComponent`
 
 Responsibilities:
 
-- align the spider body to the current surface
+- align the spider body to the current surface normal
 - smooth orientation changes across changing normals
+- preserve body-tangent continuity while steering the spider's forward toward the active movement-reference frame after projection onto the current traversal plane
 - maintain the controller's authored local-up frame
 
 ### `SpiderMovementComponent`
@@ -147,9 +152,10 @@ Current implementation boundary:
 
 - camera runtime ownership lives in `Assets/_Root/Scripts/Gameplay/Camera/`
 - `CameraSpawner` instantiates a gameplay camera rig prefab from `CameraConfig`
-- `CameraRig` binds a spawned `CinemachineCamera` to `SpiderPlayerController.CameraFollowTarget` and `SpiderPlayerController.CameraLookTarget`
+- `CameraRig` binds a spawned `CinemachineCamera` to `SpiderPlayerController.CameraFollowTarget` and `SpiderPlayerController.CameraLookTarget`, then assigns the scene `CinemachineBrain.WorldUpOverride` to the spider root
 - camera input is expected to be authored on the camera prefab with `CinemachineInputAxisController`, not driven through `IPlayerInputStreams`
 - the gameplay scene is expected to keep a single Unity `Main Camera` with `CinemachineBrain`
+- camera orbit behavior such as `CinemachineOrbitalFollow.TrackerSettings.BindingMode` is expected to stay authored on the camera prefab, with the current preferred mode validated as `Lazy Follow`
 - baseline spider locomotion currently uses the scene `Main Camera` transform as its camera-relative movement frame
 
 ### Later Components
@@ -165,7 +171,7 @@ Preferred controller flow:
 
 1. Read current input state and one-shot events.
 2. Update `SpiderSurfaceComponent`.
-3. Update `SpiderOrientationComponent`.
+3. Update `SpiderLookRotationComponent`.
 4. Calculate baseline locomotion through `SpiderMovementComponent`.
 5. Apply jump decisions through `SpiderJumpComponent` when requested.
 6. Overlay web behavior through `SpiderWebComponent` when active.
@@ -239,7 +245,7 @@ Done when:
 
 Current result:
 
-- done at the first authored slice through five sphere-based probes and overlap fallback support for already-touching surfaces
+- done through a hybrid surface-detection slice built around forward and down sphere probes, overlap fallback support for already-touching surfaces, and short forward-hit confirmation to stabilize floor-to-wall transitions
 
 ### Stage 3: Orientation And Adhesion
 
@@ -249,9 +255,10 @@ Goal:
 
 Implement:
 
-- `SpiderOrientationComponent`
+- `SpiderLookRotationComponent`
 - smooth body alignment to the detected normal
-- authored adhesion or fake-gravity force toward the surface
+- body forward alignment to the projected camera movement-reference frame
+- authored adhesion or fake-gravity force toward a configurable hover target above the surface
 - loss-of-surface fallback behavior
 - smoothing against abrupt normal jitter
 
@@ -413,7 +420,7 @@ Done when:
 
 - `SpiderPlayerController`
 - `SpiderSurfaceComponent`
-- `SpiderOrientationComponent`
+- `SpiderLookRotationComponent`
 - `SpiderMovementComponent`
 
 Definition:
@@ -449,7 +456,7 @@ Definition:
 - `SpiderWebComponent` should not own baseline locomotion
 - `SpiderJumpComponent` should not know about IK or procedural leg placement
 - `SpiderSurfaceComponent` should not own camera behavior
-- `SpiderOrientationComponent` should not make input decisions
+- `SpiderLookRotationComponent` should not own movement-speed rules or camera runtime ownership
 - `SpiderPlayerController` should coordinate components instead of containing all controller math directly
 
 ## Out Of Scope For Early Stages

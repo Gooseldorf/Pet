@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Pet.Input;
 using Pet;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Pet.Gameplay
@@ -35,7 +36,8 @@ namespace Pet.Gameplay
         {
             SpiderPlayerController player = spiderPlayerSpawner.Spawn();
             CameraRig cameraRig = cameraSpawner.Spawn();
-            cameraRig.Bind(player);
+            CinemachineBrain brain = gameplayCamera.GetComponent<CinemachineBrain>();
+            cameraRig.Bind(player, brain);
             player.SetMovementReference(gameplayCamera.transform);
             inputActionsProvider.SetEnabledMaps(InputMapKind.PlayerAndUI);
             uiGameplayController.Initialize();

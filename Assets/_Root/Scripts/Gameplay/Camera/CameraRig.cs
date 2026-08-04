@@ -8,10 +8,11 @@ namespace Pet.Gameplay
         [Header("Required References")]
         [SerializeField] private CinemachineCamera cinemachineCamera;
 
-        public void Bind(SpiderPlayerController player)
+        public void Bind(SpiderPlayerController player, CinemachineBrain brain)
         {
             cinemachineCamera.Follow = player.CameraFollowTarget;
             cinemachineCamera.LookAt = player.CameraLookTarget;
+            brain.WorldUpOverride = player.transform;
         }
     }
 }

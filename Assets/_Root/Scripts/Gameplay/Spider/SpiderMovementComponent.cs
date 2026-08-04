@@ -33,7 +33,7 @@ namespace Pet.Gameplay
             Vector3 currentVelocity,
             float fixedDeltaTime)
         {
-            Vector3 surfaceNormal = surfaceState.SurfaceNormal;
+            Vector3 surfaceNormal = controller.CurrentReferenceUp;
             Vector3 currentPlanarVelocity = Vector3.ProjectOnPlane(currentVelocity, surfaceNormal);
             Vector3 targetPlanarVelocity = CalculateSurfacePlanarTargetVelocity(controller.CurrentInputState, controller.MovementReference, surfaceNormal);
             float maxSurfaceSpeed = CalculateMaxSurfaceSpeed(fixedDeltaTime);
@@ -120,7 +120,7 @@ namespace Pet.Gameplay
 
         private float CalculateMaxSurfaceSpeed(float fixedDeltaTime)
         {
-            float maxStepDistance = config.ProbeRadius * MAX_SURFACE_STEP_FACTOR;
+            float maxStepDistance = config.DownProbeRadius * MAX_SURFACE_STEP_FACTOR;
             float maxStepSpeed = maxStepDistance / Mathf.Max(fixedDeltaTime, 0.0001f);
             return Mathf.Min(config.MaxMoveSpeed, maxStepSpeed);
         }

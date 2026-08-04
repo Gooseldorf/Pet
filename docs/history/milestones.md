@@ -6,6 +6,85 @@ This page records notable technical milestones that should not live only in chat
 
 ## Milestones
 
+### Spider traversal camera up is now sourced from the player root
+
+Status: completed
+
+Summary:
+
+- The gameplay camera bind flow now assigns `CinemachineBrain.WorldUpOverride` to the spawned spider root so wall and ceiling look controls use traversal-relative up, while the camera orbit binding mode remains prefab-authored.
+
+Impact:
+
+- looking on ceilings and walls now follows the spider's current traversal frame instead of staying pinned to world up
+- gameplay code now owns only runtime follow/look binding and brain world-up wiring, while camera orbit behavior remains an authored camera-prefab decision
+- camera tuning experiments such as `Lazy Follow` can now live on the prefab without being overwritten at startup
+
+Key artifacts:
+
+- startup orchestration: `Assets/_Root/Scripts/Bootstrap/GameplayEntryPoint.cs`
+- camera runtime slice: `Assets/_Root/Scripts/Gameplay/Camera/CameraRig.cs`
+- authored camera rig prefab: `Assets/_Root/Prefabs/pf_FreeLookCamera.prefab`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`
+- `../unity/spider-player-controller-plan.md`
+
+### Spider wall-transition stabilization and probe debugging established
+
+Status: completed
+
+Summary:
+
+- The spider controller now uses a hybrid forward-plus-down surface probe flow with wall-takeover confirmation, smoothed local-up alignment, and editor gizmos for support debugging.
+
+Impact:
+
+- floor-to-wall transitions no longer switch support ownership on the first forward wall contact
+- spider orientation now preserves body-tangent continuity while still blending toward camera-relative yaw on the new traversal plane
+- runtime debugging of probe origin, forward/down sphere checks, sampled surface normal, and current reference up is now available directly in the Scene view
+
+Key artifacts:
+
+- support detection: `Assets/_Root/Scripts/Gameplay/Spider/SpiderSurfaceComponent.cs`
+- local-up smoothing and gizmos: `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
+- transition-aware look rotation: `Assets/_Root/Scripts/Gameplay/Spider/SpiderLookRotationComponent.cs`
+- transition tuning: `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`
+- `../unity/spider-player-controller-plan.md`
+
+### Spider orientation and hover adhesion established
+
+Status: completed
+
+Summary:
+
+- The spider controller now has an explicit look-rotation rule component plus a configurable hover-style adhesion target above traversable surfaces.
+
+Impact:
+
+- spider forward now tracks the scene `Main Camera` movement-reference frame instead of relying only on the spider root's previous facing direction
+- body up alignment and camera-facing body rotation now live in a dedicated `SpiderLookRotationComponent` boundary instead of the older generic orientation component name
+- surface adhesion now supports a leg-like hover gap through config while still allowing outside forces to press the rigidbody closer to the surface
+
+Key artifacts:
+
+- orientation runtime: `Assets/_Root/Scripts/Gameplay/Spider/SpiderLookRotationComponent.cs`
+- controller orchestration: `Assets/_Root/Scripts/Gameplay/Spider/SpiderPlayerController.cs`
+- locomotion and adhesion tuning: `Assets/_Root/Scripts/Gameplay/Spider/SpiderMovementComponent.cs`, `Assets/_Root/Scripts/Gameplay/Spider/SpiderConfig.cs`
+
+Related docs:
+
+- `../project-map.md`
+- `../unity/project-structure.md`
+- `../unity/spider-player-controller-plan.md`
+
 ### Spider player controller roadmap and local implementation skill established
 
 Status: completed

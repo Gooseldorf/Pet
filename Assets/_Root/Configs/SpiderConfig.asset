@@ -21,16 +21,20 @@ MonoBehaviour:
   traversableSurfaceMask:
     serializedVersion: 2
     m_Bits: 128
+  downProbeDistance: 0.3
+  downProbeRadius: 0.15
+  forwardProbeDistance: 0.5
+  forwardProbeRadius: 0.15
+  forwardProbePriorityAngle: 35
+  forwardProbeConfirmFrames: 2
   probeDistance: 1
   probeRadius: 0.5
-  probeOffset: 0.35
   maxMoveSpeed: 5
   moveAcceleration: 25
   maxAirMoveSpeed: 3
   airMoveAcceleration: 10
   orientationSharpness: 15
-  lookYawSpeed: 180
-  lookYawDeadZone: 0.01
+  surfaceAlignmentSharpness: 12
   adhesionForce: 30
   surfaceStickSpeed: 3
   surfaceHoverOffset: 0.1

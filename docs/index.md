@@ -1,41 +1,10 @@
-# Project Knowledge Base
+# Project Documentation
 
-## Purpose
+This index is for human browsing and documentation audits. Read the relevant repository authority for current implementation facts.
 
-This directory is the project's technical knowledge base.
-
-It is written for both humans and coding agents:
-
-- humans should be able to understand the project quickly
-- agents should be able to find authoritative paths, workflows, and constraints without relying on chat history
-
-## Start Here
-
-- `project-map.md`: top-level repository map and source-of-truth index
-- `ai/assistant-entrypoint.md`: shortest agent-oriented entrypoint
-- `systems/ci-cd.md`: current WebGL build and deployment pipeline
-- `systems/platform-strategy.md`: current platform direction and how to interpret the temporary WebGL path
-- `unity/project-structure.md`: current Unity-authored content layout
-- `unity/runtime-architecture-guidelines.md`: current runtime ownership, startup, and initialization guidance
-- `unity/unity-composition-guide.md`: external composition-oriented Unity reference kept as a secondary guide
-- `unity/spider-player-controller-plan.md`: staged implementation roadmap for the player-controlled spider
-- `ai/external-agent-guidance.md`: external agent working-style note preserved as a secondary reference
-- `history/milestones.md`: notable project milestones
-
-## Documentation Rules
-
-- Prefer real repository paths over paraphrase.
-- Prefer one document per topic.
-- Prefer updating existing source-of-truth pages over creating overlapping notes.
-- Record major technical changes in `history/milestones.md`.
-- Keep `AGENTS.md` short; keep detailed project knowledge here.
-
-## Current Scope
-
-The repository is still small. This knowledge base focuses on:
-
-- project structure
-- Unity layout
-- CI/CD and delivery
-- documentation maintenance workflow
-- agent retrieval entrypoints
+- [Project map](project-map.md): stable repository ownership and authority map.
+- [CI/CD](systems/ci-cd.md): delivery intent, operational boundaries, and failure diagnosis.
+- [Platform strategy](systems/platform-strategy.md): mobile-plus-PC direction and temporary WebGL interpretation.
+- [Runtime architecture](unity/runtime-architecture.md): startup, DI, scene-entry, config, and spawn ownership.
+- [Spider player](unity/spider-player.md): preserved spider rewrite boundary and scope.
+- [Updating documentation](workflows/updating-docs.md): documentation maintenance procedure.

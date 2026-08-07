@@ -1,0 +1,30 @@
+name: Validate Context
+
+on:
+  pull_request:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  context:
+    name: Validate Context
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Validate context
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File tools/validate.ps1 -Mode Context
+
+      - name: Upload validation summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: context-validation-summary
+          path: .artifacts/validation/Context/summary.txt
+          if-no-files-found: error

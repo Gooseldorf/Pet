@@ -1,44 +1,14 @@
 ---
 name: docs-auditor
-description: Audit the project knowledge base for gaps, staleness, and overlap. Use when the user asks what is missing from `docs/`, whether documentation is outdated, or how to improve retrieval quality for humans and coding agents.
+description: Audit project documentation for gaps, staleness, overlap, or retrieval cost. Use for documentation audits, context-efficiency reviews, and requests to find outdated or redundant docs.
 ---
 
 # Docs Auditor
 
-Review the quality of the local documentation set.
+1. Set the audit boundary before loading broad documentation. Use `docs/index.md` only for a broad audit.
+2. Verify material claims against their repository authority.
+3. Find stale summaries, duplicate policy, conflicting instructions, and links that do not route to a clear owner.
+4. Prefer deletion over moving content that is derivable from the repository.
+5. Run `powershell -ExecutionPolicy Bypass -File tools/validate.ps1 -Mode Context` after changes.
 
-## Goals
-
-- find stale or weak source-of-truth pages
-- find missing links and missing entrypoints
-- detect overlap and ambiguity between docs
-
-## When To Use
-
-Use this skill when asked to:
-
-- audit the docs
-- check for stale documentation
-- identify missing project knowledge
-- improve agent retrieval quality
-
-## Workflow
-
-1. Review `docs/index.md`, `docs/project-map.md`, and `docs/ai/assistant-entrypoint.md` first.
-2. Check whether key project topics have source-of-truth pages.
-3. Check whether claims are backed by real repository paths.
-4. Flag overlap, outdated content, and missing cross-links.
-
-## Output Format
-
-Return:
-
-1. `Status`: pass, pass with fixes, or fail
-2. `Coverage`: what is covered and what is missing
-3. `Staleness`: likely outdated pages or claims
-4. `Navigation`: missing links or entrypoints
-5. `Recommended changes`: smallest useful fixes
-
-## Bundled References
-
-- `references/audit-checklist.md`
+Return findings first, ordered by severity with paths and evidence. State explicitly when no findings are discovered and identify remaining verification gaps.

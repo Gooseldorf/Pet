@@ -1,54 +1,10 @@
-# Updating Docs
+# Updating Documentation
 
-## Goal
+Persist information only when it records durable intent, a repeated procedure, or an external obligation that the repository cannot reliably show. Current code, serialized wiring, versions, packages, settings, and workflow values belong in their repository authorities, not a prose mirror.
 
-Keep the project knowledge base accurate enough to be useful for both humans and coding agents.
+1. Read the affected authority and identify the existing topic owner in [the documentation index](../index.md).
+2. Update that owner or delete superseded context. Create a page only when no durable owner fits.
+3. Add a one-line entry to [the documentation index](../index.md) only when a durable page is added, renamed, or removed. Update [the project map](../project-map.md) only when an ownership boundary changes.
+4. Check links and contradictions, then run `powershell -ExecutionPolicy Bypass -File tools/validate.ps1 -Mode Context`.
 
-## Preconditions
-
-- A technical change has been made, or a meaningful project fact has been clarified.
-- The relevant source files already exist in the repository, or are being added in the same change.
-
-## Rules
-
-- Update the smallest authoritative page that matches the topic.
-- Prefer editing an existing source-of-truth page over creating a new overlapping document.
-- Use concrete repository paths.
-- Record major changes in `docs/history/milestones.md`.
-- If a new source-of-truth page is added, also link it from:
-  - `docs/project-map.md`
-  - `docs/ai/retrieval-map.md`
-
-## Common Update Cases
-
-| Change type | Update |
-| --- | --- |
-| repository structure changed | `docs/project-map.md` |
-| Unity layout changed | `docs/unity/project-structure.md` |
-| build or deployment changed | `docs/systems/ci-cd.md` |
-| major technical milestone completed | `docs/history/milestones.md` |
-| new agent navigation target added | `docs/ai/assistant-entrypoint.md` and `docs/ai/retrieval-map.md` |
-
-## Suggested Steps
-
-1. Identify the source-of-truth page for the changed topic.
-2. Read the affected repository files.
-3. Update the page with concrete paths and current behavior.
-4. Add or update related links.
-5. If the change is significant, add a milestone entry.
-
-## Verification
-
-Check that:
-
-- every important statement is backed by a real repo path
-- the updated page is linked from at least one discoverable entrypoint
-- no older page now contradicts the updated one
-
-## Related Docs
-
-- `../index.md`
-- `../project-map.md`
-- `../ai/assistant-entrypoint.md`
-- `../ai/retrieval-map.md`
-- `../history/milestones.md`
+Do not create milestones, generic templates, repository inventories, or documentation for facts that a targeted repository read establishes. Use `docs/agent-audit/` only while its migration remains under review.

@@ -7,4 +7,4 @@ Persist information only when it records durable intent, a repeated procedure, o
 3. Add a one-line entry to [the documentation index](../index.md) only when a durable page is added, renamed, or removed. Update [the project map](../project-map.md) only when an ownership boundary changes.
 4. Check links and contradictions, then run `powershell -ExecutionPolicy Bypass -File tools/validate.ps1 -Mode Context`.
 
-Do not create milestones, generic templates, repository inventories, or documentation for facts that a targeted repository read establishes. Use `docs/agent-audit/` only while its migration remains under review.
+Do not create milestones, generic templates, repository inventories, or documentation for facts that a targeted repository read establishes.

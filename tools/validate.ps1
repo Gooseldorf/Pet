@@ -90,8 +90,7 @@ $failures = [System.Collections.Generic.List[string]]::new()
 try {
     $markdownFiles = @(
         Get-Item -LiteralPath (Join-Path $repositoryRoot "AGENTS.md")
-        Get-ChildItem -LiteralPath (Join-Path $repositoryRoot "docs") -Recurse -File -Filter "*.md" |
-            Where-Object { $_.FullName -notmatch '[\\/]agent-audit[\\/]' }
+        Get-ChildItem -LiteralPath (Join-Path $repositoryRoot "docs") -Recurse -File -Filter "*.md"
         Get-ChildItem -LiteralPath (Join-Path $repositoryRoot ".opencode/skills") -Recurse -File -Filter "*.md"
     )
     foreach ($file in $markdownFiles) {

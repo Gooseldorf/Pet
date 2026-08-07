@@ -44,7 +44,6 @@
 
 # Local IDE and OpenCode workspace state
 .idea/
-/ForAgents/
 /.artifacts/
 /.opencode/node_modules/
 /.opencode/package.json

@@ -449,6 +449,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8266237700902161002}
   - component: {fileID: 5216841514806801433}
+  - component: {fileID: 9056757297643983445}
   - component: {fileID: 589952622906907717}
   - component: {fileID: 4029839345640327145}
   m_Layer: 6
@@ -489,10 +490,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Pet.Runtime::Pet.Gameplay.SpiderPlayerController
   bodyRigidbody: {fileID: 4029839345640327145}
   bodyCollider: {fileID: 589952622906907717}
-  visualRoot: {fileID: 2346376464914782657}
-  probeOrigin: {fileID: 8313506053978667072}
   cameraFollowTarget: {fileID: 2346376464914782657}
   cameraLookTarget: {fileID: 2346376464914782657}
+--- !u!114 &9056757297643983445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6238570924475698288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b96c4ceafca03b74f94b42403df5da23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Pet.Runtime::Pet.Gameplay.SpiderSurfaceVisualizer
+  playerController: {fileID: 5216841514806801433}
+  searchRadiusMaterial: {fileID: 2100000, guid: b7846ae808878564991fd080c11b0b9f, type: 2}
+  contactMaterial: {fileID: 2100000, guid: b50b552366544fc43a9fce63cf015b3e, type: 2}
 --- !u!135 &589952622906907717
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -538,9 +552,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!1 &7351152947547495460
 GameObject:
   m_ObjectHideFlags: 0

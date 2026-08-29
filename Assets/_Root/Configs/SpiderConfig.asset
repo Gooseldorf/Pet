@@ -13,30 +13,20 @@ MonoBehaviour:
   m_Name: SpiderConfig
   m_EditorClassIdentifier: Pet.Runtime::Pet.Gameplay.SpiderConfig
   <Prefab>k__BackingField: {fileID: 5216841514806801433, guid: d2ee14d8be880eb4ab7126f6e8c1d2fd, type: 3}
-  enableCeilingTraversal: 1
-  enableSurfaceAdhesion: 1
-  enableJump: 1
-  enableWeb: 0
-  enableAirControl: 1
   traversableSurfaceMask:
     serializedVersion: 2
     m_Bits: 128
-  downProbeDistance: 0.3
-  downProbeRadius: 0.15
-  forwardProbeDistance: 0.5
-  forwardProbeRadius: 0.15
-  forwardProbePriorityAngle: 35
-  forwardProbeConfirmFrames: 2
-  probeDistance: 1
-  probeRadius: 0.5
+  surfaceSearchDistance: 0.3
+  maxSurfaceBlendAngle: 100
+  attachConfirmationFrames: 2
+  detachGraceFrames: 2
   maxMoveSpeed: 5
   moveAcceleration: 25
-  maxAirMoveSpeed: 3
-  airMoveAcceleration: 10
-  orientationSharpness: 15
-  surfaceAlignmentSharpness: 12
+  surfaceHoverOffset: 0.1
   adhesionForce: 30
   surfaceStickSpeed: 3
-  surfaceHoverOffset: 0.1
   adhesionDeadZone: 0.05
+  surfaceAlignmentSharpness: 12
+  headingAlignmentSharpness: 15
   airborneGravity: 18
+  drawSurfaceGizmos: 1

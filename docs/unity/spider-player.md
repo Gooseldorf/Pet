@@ -8,7 +8,7 @@ Movement input is interpreted in the body frame: the body forward follows the ca
 
 The public surface state is the integration boundary for future systems such as legs. It reports whether the body is attached, the blended support point and normal, and the contributing colliders. Consumers observe it and must not own body movement, surface sampling, or controller tick order.
 
-The preserved boundary is explicit runtime spawn: gameplay startup creates the spider and its camera rig, then the rig binds to authored follow and look targets on the spawned spider. Keep camera ownership in the camera slice and do not replace that binding with scene searches or scene-owned target references.
+The preserved boundary is explicit runtime spawn: gameplay startup creates the spider and its camera rig, then the rig binds to authored follow and look targets on the spawned spider. Keep camera ownership in the camera slice and do not replace that binding with scene searches or scene-owned target references. The world-space spherical orbit can traverse its complete vertical range; its Aim stage preserves orientation continuity by rolling the frame through either pole instead of clamping or snapping upright.
 
 The current spider scope is single-player. Do not infer networking support; evaluate authority and synchronization only when multiplayer is introduced or requested.
 

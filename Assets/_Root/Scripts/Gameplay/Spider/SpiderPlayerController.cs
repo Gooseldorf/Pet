@@ -1,4 +1,6 @@
+using System;
 using Pet.Input;
+using R3;
 using UnityEngine;
 
 namespace Pet.Gameplay
@@ -17,6 +19,8 @@ namespace Pet.Gameplay
         private SpiderLocomotionMotor locomotionMotor;
         private IPlayerInputStreams inputStreams;
         private Transform movementCameraTransform;
+        private IDisposable jumpInputSubscription;
+        private bool jumpRequested;
 
         public Transform CameraFollowTarget => cameraFollowTarget;
         public Transform CameraLookTarget => cameraLookTarget;
@@ -29,12 +33,21 @@ namespace Pet.Gameplay
             movementCameraTransform = movementCamera.transform;
             surfaceDetector = new SpiderSurfaceDetector(bodyCollider, config);
             locomotionMotor = new SpiderLocomotionMotor(bodyRigidbody, bodyCollider, config);
+            jumpInputSubscription = inputStreams.JumpPressed.Subscribe(_ => jumpRequested = true);
         }
 
         private void FixedUpdate()
         {
             bool wasAttached = surfaceDetector.State.IsAttached;
             surfaceDetector.Sample();
+            bool shouldJump = jumpRequested;
+            jumpRequested = false;
+
+            if (shouldJump && surfaceDetector.State.IsAttached && surfaceDetector.HasDetectedSurface)
+            {
+                locomotionMotor.BeginJump(surfaceDetector.State);
+                surfaceDetector.BeginJump();
+            }
 
             if (!wasAttached && surfaceDetector.State.IsAttached)
             {
@@ -42,10 +55,15 @@ namespace Pet.Gameplay
             }
 
             locomotionMotor.Tick(
-                surfaceDetector.State,
+                surfaceDetector,
                 inputStreams.CurrentState.Move,
                 movementCameraTransform,
                 Time.fixedDeltaTime);
+        }
+
+        private void OnDestroy()
+        {
+            jumpInputSubscription?.Dispose();
         }
     }
 }

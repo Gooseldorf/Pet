@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Pet.Gameplay
 {
@@ -8,6 +10,8 @@ namespace Pet.Gameplay
         private const int MAX_CONTACTS = 64;
         private const float NORMAL_DEDUPLICATION_DOT = 0.999f;
         private const float MIN_VECTOR_SQR_MAGNITUDE = 0.000001f;
+        private const float FACE_ALIGNMENT_DOT = 0.999f;
+        private const float SCORE_COMPARISON_EPSILON = 0.0001f;
 
         private static readonly Vector3[] probeDirections =
         {
@@ -36,14 +40,19 @@ namespace Pet.Gameplay
         private readonly Collider[] overlappingColliders = new Collider[MAX_OVERLAPPING_COLLIDERS];
         private readonly SpiderSurfaceContact[] contacts = new SpiderSurfaceContact[MAX_CONTACTS];
         private readonly SpiderSurfaceContact[] selectedContacts = new SpiderSurfaceContact[MAX_CONTACTS];
+        private readonly Collider[] jumpOriginColliders = new Collider[MAX_CONTACTS];
+        private readonly RaycastHit[] visibilityHits = new RaycastHit[MAX_OVERLAPPING_COLLIDERS];
         private readonly bool[] processedContacts = new bool[MAX_CONTACTS];
 
         private int contactCount;
         private int selectedContactCount;
         private int attachmentFrames;
-        private int missingFrames;
+        private int jumpOriginColliderCount;
         private Vector3 bodyCenter;
         private float bodyRadius;
+        private Vector3 lastAttachedBodyPosition;
+        private Quaternion lastAttachedBodyRotation;
+        private bool ignoresJumpOrigin;
 
         public SpiderSurfaceDetector(SphereCollider bodyCollider, SpiderConfig config)
         {
@@ -58,6 +67,9 @@ namespace Pet.Gameplay
         internal float SearchRadius => bodyRadius + config.SurfaceSearchDistance;
         internal int ContactCount => contactCount;
         internal int SelectedContactCount => selectedContactCount;
+        public bool HasDetectedSurface { get; private set; }
+        public Vector3 LastAttachedBodyPosition => lastAttachedBodyPosition;
+        public Quaternion LastAttachedBodyRotation => lastAttachedBodyRotation;
 
         public void Sample()
         {
@@ -65,30 +77,95 @@ namespace Pet.Gameplay
             bodyRadius = CalculateWorldRadius();
             HasSample = true;
             contactCount = 0;
+            UpdateJumpOriginExclusion();
 
             CollectClosestPointContacts();
             CollectDirectionalContacts();
 
             if (TryBuildSurface(out Vector3 point, out Vector3 normal))
             {
+                HasDetectedSurface = true;
                 attachmentFrames++;
-                missingFrames = 0;
 
                 if (State.IsAttached || attachmentFrames >= config.AttachConfirmationFrames)
                 {
                     State.SetAttached(point, normal, selectedContacts, selectedContactCount);
+                    lastAttachedBodyPosition = bodyCollider.attachedRigidbody.position;
+                    lastAttachedBodyRotation = bodyCollider.attachedRigidbody.rotation;
                 }
 
                 return;
             }
 
+            HasDetectedSurface = false;
             attachmentFrames = 0;
-            missingFrames++;
 
-            if (State.IsAttached && missingFrames > config.DetachGraceFrames)
+            if (State.IsAttached)
             {
-                State.SetAirborne();
+                LogTraversal($"Sample found no support. contacts={contactCount}, position={bodyCenter}, normal={State.Normal}");
             }
+        }
+
+        public void BeginJump()
+        {
+            jumpOriginColliderCount = 0;
+
+            foreach (Collider collider in State.Colliders)
+            {
+                jumpOriginColliders[jumpOriginColliderCount++] = collider;
+            }
+
+            ignoresJumpOrigin = jumpOriginColliderCount > 0;
+            attachmentFrames = 0;
+            HasDetectedSurface = false;
+            State.SetAirborne();
+        }
+
+        internal bool TryFindPredictedSupport(
+            SpiderSurfaceState currentSurface,
+            Vector3 predictedBodyCenter,
+            out SpiderSurfaceContact predictedSupport)
+        {
+            predictedSupport = default;
+            float searchRadius = bodyRadius + config.SurfaceSearchDistance;
+            int overlappingCount = Physics.OverlapSphereNonAlloc(
+                predictedBodyCenter,
+                searchRadius,
+                overlappingColliders,
+                config.TraversableSurfaceMask,
+                QueryTriggerInteraction.Ignore);
+            float minimumNormalDot = Mathf.Cos(config.MaxSurfaceBlendAngle * Mathf.Deg2Rad);
+            float normalPenaltyDistance = config.SurfaceSearchDistance * 0.25f;
+            float bestScore = float.MaxValue;
+
+            for (int colliderIndex = 0; colliderIndex < overlappingCount; colliderIndex++)
+            {
+                Collider collider = overlappingColliders[colliderIndex];
+
+                if (!TryCreateClosestPointContact(
+                        collider,
+                        predictedBodyCenter,
+                        overlappingCount,
+                        out SpiderSurfaceContact contact) ||
+                    IsAboveUnsupportedBoxGap(collider, predictedBodyCenter, overlappingCount) ||
+                    Vector3.Dot(currentSurface.Normal, contact.Normal) < minimumNormalDot)
+                {
+                    continue;
+                }
+
+                float score = contact.Distance +
+                              (1f - Vector3.Dot(currentSurface.Normal, contact.Normal)) * normalPenaltyDistance;
+
+                if (!IsBetterContactScore(score, contact, bestScore, predictedSupport))
+                {
+                    continue;
+                }
+
+                predictedSupport = contact;
+                bestScore = score;
+            }
+
+            return bestScore < float.MaxValue;
         }
 
         internal SpiderSurfaceContact GetContact(int index)
@@ -121,30 +198,27 @@ namespace Pet.Gameplay
                     continue;
                 }
 
-                Vector3 point = collider.ClosestPoint(bodyCenter);
-                Vector3 fromPointToBody = bodyCenter - point;
-                float pointDistance = fromPointToBody.magnitude;
-
-                if (pointDistance <= MIN_VECTOR_SQR_MAGNITUDE)
+                if (!TryCreateClosestPointContact(collider, bodyCenter, overlappingCount, out SpiderSurfaceContact contact))
                 {
                     continue;
                 }
 
-                Vector3 rayDirection = -fromPointToBody / pointDistance;
-
-                if (!Physics.Raycast(
-                        bodyCenter,
-                        rayDirection,
-                        out RaycastHit hit,
-                        pointDistance + Physics.defaultContactOffset,
-                        config.TraversableSurfaceMask,
-                        QueryTriggerInteraction.Ignore) || hit.collider != collider)
-                {
-                    continue;
-                }
-
-                AddContact(collider, hit.point, hit.normal, Mathf.Max(0f, hit.distance - bodyRadius));
+                AddContact(contact);
             }
+        }
+
+        private bool TryCreateClosestPointContact(
+            Collider collider,
+            Vector3 sampleCenter,
+            int overlappingCount,
+            out SpiderSurfaceContact contact)
+        {
+            if (collider is BoxCollider boxCollider)
+            {
+                return TryCreateBoxContact(boxCollider, sampleCenter, overlappingCount, out contact);
+            }
+
+            return TryCreateContact(collider, sampleCenter, out contact);
         }
 
         private void CollectDirectionalContacts()
@@ -166,13 +240,424 @@ namespace Pet.Gameplay
                     continue;
                 }
 
+                if (UsesExpandedSurfaceNormal(hit.collider))
+                {
+                    continue;
+                }
+
                 AddContact(hit.collider, hit.point, hit.normal, Mathf.Max(0f, hit.distance - bodyRadius));
             }
         }
 
+        private bool TryCreateContact(Collider collider, Vector3 sampleCenter, out SpiderSurfaceContact contact)
+        {
+            contact = default;
+
+            if (collider.attachedRigidbody != null || IsIgnoredJumpOrigin(collider))
+            {
+                return false;
+            }
+
+            Vector3 closestPoint = collider.ClosestPoint(sampleCenter);
+            Vector3 fromPointToCenter = sampleCenter - closestPoint;
+            float pointDistance = fromPointToCenter.magnitude;
+
+            if (pointDistance <= MIN_VECTOR_SQR_MAGNITUDE ||
+                !Physics.Raycast(
+                    sampleCenter,
+                    -fromPointToCenter / pointDistance,
+                    out RaycastHit hit,
+                    pointDistance + Physics.defaultContactOffset,
+                    config.TraversableSurfaceMask,
+                    QueryTriggerInteraction.Ignore) || hit.collider != collider)
+            {
+                return false;
+            }
+
+            if (UsesExpandedSurfaceNormal(collider))
+            {
+                contact = new SpiderSurfaceContact(
+                    collider,
+                    closestPoint,
+                    fromPointToCenter / pointDistance,
+                    Mathf.Max(0f, pointDistance - bodyRadius));
+                return true;
+            }
+
+            contact = new SpiderSurfaceContact(
+                collider,
+                hit.point,
+                hit.normal,
+                Mathf.Max(0f, hit.distance - bodyRadius));
+            return true;
+        }
+
+        private bool TryCreateBoxContact(
+            BoxCollider collider,
+            Vector3 sampleCenter,
+            int overlappingCount,
+            out SpiderSurfaceContact contact)
+        {
+            contact = default;
+
+            if (collider.attachedRigidbody != null || IsIgnoredJumpOrigin(collider))
+            {
+                return false;
+            }
+
+            Vector3 closestPoint = collider.ClosestPoint(sampleCenter);
+            Vector3 fromPointToCenter = sampleCenter - closestPoint;
+            float closestDistance = fromPointToCenter.magnitude;
+
+            if (closestDistance <= MIN_VECTOR_SQR_MAGNITUDE)
+            {
+                return false;
+            }
+
+            Vector3 resolvedPoint = closestPoint;
+            float resolvedDistance = closestDistance;
+            Collider seamPartner = null;
+            bool usesVirtualSeam = false;
+
+            for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+            {
+                if (!TryCreateBoxFace(collider, faceIndex, sampleCenter, out SpiderBoxFace face))
+                {
+                    continue;
+                }
+
+                for (int colliderIndex = 0; colliderIndex < overlappingCount; colliderIndex++)
+                {
+                    if (overlappingColliders[colliderIndex] is not BoxCollider partner ||
+                        partner == collider ||
+                        partner.attachedRigidbody != null ||
+                        IsIgnoredJumpOrigin(partner))
+                    {
+                        continue;
+                    }
+
+                    for (int partnerFaceIndex = 0; partnerFaceIndex < 6; partnerFaceIndex++)
+                    {
+                        if (!TryCreateBoxFace(partner, partnerFaceIndex, sampleCenter, out SpiderBoxFace partnerFace) ||
+                            !TryGetFaceSeam(face, partnerFace, out float gap, out Vector4 bridgeBounds) ||
+                            gap > bodyRadius + Physics.defaultContactOffset)
+                        {
+                            continue;
+                        }
+
+                        Vector3 candidatePoint = FindClosestPointOnFacePair(
+                            sampleCenter,
+                            face,
+                            partnerFace,
+                            bridgeBounds,
+                            out bool candidateUsesVirtualSeam);
+                        float candidateDistance = Vector3.Distance(sampleCenter, candidatePoint);
+
+                        if (candidateDistance >= resolvedDistance - SCORE_COMPARISON_EPSILON)
+                        {
+                            continue;
+                        }
+
+                        resolvedPoint = candidatePoint;
+                        resolvedDistance = candidateDistance;
+                        seamPartner = partner;
+                        usesVirtualSeam = candidateUsesVirtualSeam;
+                    }
+                }
+            }
+
+            if (!HasVisibleBoxSupport(
+                    sampleCenter,
+                    resolvedPoint,
+                    collider,
+                    seamPartner,
+                    usesVirtualSeam))
+            {
+                return false;
+            }
+
+            Vector3 normal = sampleCenter - resolvedPoint;
+
+            if (normal.sqrMagnitude <= MIN_VECTOR_SQR_MAGNITUDE)
+            {
+                return false;
+            }
+
+            contact = new SpiderSurfaceContact(
+                collider,
+                resolvedPoint,
+                normal.normalized,
+                Mathf.Max(0f, resolvedDistance - bodyRadius));
+            return true;
+        }
+
+        private bool HasVisibleBoxSupport(
+            Vector3 sampleCenter,
+            Vector3 supportPoint,
+            BoxCollider source,
+            Collider seamPartner,
+            bool usesVirtualSeam)
+        {
+            Vector3 toSupport = supportPoint - sampleCenter;
+            float supportDistance = toSupport.magnitude;
+
+            if (supportDistance <= MIN_VECTOR_SQR_MAGNITUDE)
+            {
+                return false;
+            }
+
+            int hitCount = Physics.RaycastNonAlloc(
+                sampleCenter,
+                toSupport / supportDistance,
+                visibilityHits,
+                supportDistance + Physics.defaultContactOffset,
+                config.TraversableSurfaceMask,
+                QueryTriggerInteraction.Ignore);
+            float nearestHitDistance = float.MaxValue;
+            Collider nearestCollider = null;
+
+            for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
+            {
+                RaycastHit hit = visibilityHits[hitIndex];
+
+                if (hit.distance >= nearestHitDistance)
+                {
+                    continue;
+                }
+
+                nearestHitDistance = hit.distance;
+                nearestCollider = hit.collider;
+            }
+
+            if (nearestCollider == null)
+            {
+                return usesVirtualSeam;
+            }
+
+            return nearestCollider == source || nearestCollider == seamPartner;
+        }
+
+        private static bool TryCreateBoxFace(
+            BoxCollider collider,
+            int faceIndex,
+            Vector3 sampleCenter,
+            out SpiderBoxFace face)
+        {
+            int normalAxis = faceIndex / 2;
+            float normalSign = faceIndex % 2 == 0 ? 1f : -1f;
+            Vector3 localNormal = GetAxis(normalAxis) * normalSign;
+            Vector3 localExtents = collider.size * 0.5f;
+            Vector3 localCenter = collider.center + localNormal * GetAxisValue(localExtents, normalAxis);
+            Transform transform = collider.transform;
+            Vector3 normal = transform.worldToLocalMatrix.transpose.MultiplyVector(localNormal).normalized;
+            Vector3 center = transform.TransformPoint(localCenter);
+
+            if (Vector3.Dot(sampleCenter - center, normal) < -Physics.defaultContactOffset)
+            {
+                face = default;
+                return false;
+            }
+
+            int axisU = (normalAxis + 1) % 3;
+            int axisV = (normalAxis + 2) % 3;
+            Vector3 localU = GetAxis(axisU);
+            Vector3 localV = GetAxis(axisV);
+            Vector3 worldU = transform.TransformVector(localU);
+            Vector3 worldV = transform.TransformVector(localV);
+            float extentU = GetAxisValue(localExtents, axisU) * worldU.magnitude;
+            float extentV = GetAxisValue(localExtents, axisV) * worldV.magnitude;
+
+            face = new SpiderBoxFace(
+                center,
+                normal,
+                worldU.normalized,
+                worldV.normalized,
+                extentU,
+                extentV);
+            return true;
+        }
+
+        private static Vector3 GetAxis(int axis)
+        {
+            return axis switch
+            {
+                0 => Vector3.right,
+                1 => Vector3.up,
+                _ => Vector3.forward
+            };
+        }
+
+        private static float GetAxisValue(Vector3 value, int axis)
+        {
+            return axis switch
+            {
+                0 => value.x,
+                1 => value.y,
+                _ => value.z
+            };
+        }
+
+        private static bool TryGetFaceSeam(
+            SpiderBoxFace first,
+            SpiderBoxFace second,
+            out float gap,
+            out Vector4 bridgeBounds)
+        {
+            gap = 0f;
+            bridgeBounds = default;
+
+            if (Vector3.Dot(first.Normal, second.Normal) < FACE_ALIGNMENT_DOT ||
+                Mathf.Abs(Vector3.Dot(second.Center - first.Center, first.Normal)) > Physics.defaultContactOffset)
+            {
+                return false;
+            }
+
+            GetFaceIntervals(second, first, out float secondMinU, out float secondMaxU, out float secondMinV, out float secondMaxV);
+            float firstMinU = -first.ExtentU;
+            float firstMaxU = first.ExtentU;
+            float firstMinV = -first.ExtentV;
+            float firstMaxV = first.ExtentV;
+            float overlapU = Mathf.Min(firstMaxU, secondMaxU) - Mathf.Max(firstMinU, secondMinU);
+            float overlapV = Mathf.Min(firstMaxV, secondMaxV) - Mathf.Max(firstMinV, secondMinV);
+
+            if (overlapU >= -Physics.defaultContactOffset && overlapV >= -Physics.defaultContactOffset)
+            {
+                return true;
+            }
+
+            if (overlapU >= -Physics.defaultContactOffset)
+            {
+                gap = -overlapV;
+                bridgeBounds = new Vector4(
+                    Mathf.Max(firstMinU, secondMinU),
+                    Mathf.Min(firstMaxU, secondMaxU),
+                    Mathf.Min(firstMaxV, secondMaxV),
+                    Mathf.Max(firstMinV, secondMinV));
+                return true;
+            }
+
+            if (overlapV >= -Physics.defaultContactOffset)
+            {
+                gap = -overlapU;
+                bridgeBounds = new Vector4(
+                    Mathf.Min(firstMaxU, secondMaxU),
+                    Mathf.Max(firstMinU, secondMinU),
+                    Mathf.Max(firstMinV, secondMinV),
+                    Mathf.Min(firstMaxV, secondMaxV));
+                return true;
+            }
+
+            return false;
+        }
+
+        private static void GetFaceIntervals(
+            SpiderBoxFace target,
+            SpiderBoxFace reference,
+            out float minU,
+            out float maxU,
+            out float minV,
+            out float maxV)
+        {
+            minU = float.MaxValue;
+            maxU = float.MinValue;
+            minV = float.MaxValue;
+            maxV = float.MinValue;
+
+            for (int uSign = -1; uSign <= 1; uSign += 2)
+            {
+                for (int vSign = -1; vSign <= 1; vSign += 2)
+                {
+                    Vector3 corner = target.Center +
+                                     target.AxisU * (target.ExtentU * uSign) +
+                                     target.AxisV * (target.ExtentV * vSign);
+                    Vector3 offset = corner - reference.Center;
+                    float u = Vector3.Dot(offset, reference.AxisU);
+                    float v = Vector3.Dot(offset, reference.AxisV);
+                    minU = Mathf.Min(minU, u);
+                    maxU = Mathf.Max(maxU, u);
+                    minV = Mathf.Min(minV, v);
+                    maxV = Mathf.Max(maxV, v);
+                }
+            }
+        }
+
+        private static Vector3 FindClosestPointOnFacePair(
+            Vector3 sampleCenter,
+            SpiderBoxFace first,
+            SpiderBoxFace second,
+            Vector4 bridgeBounds,
+            out bool usesVirtualSeam)
+        {
+            Vector3 planePoint = sampleCenter - first.Normal * Vector3.Dot(sampleCenter - first.Center, first.Normal);
+
+            if (IsInsideFace(planePoint, first) || IsInsideFace(planePoint, second))
+            {
+                usesVirtualSeam = false;
+                return planePoint;
+            }
+
+            if (IsInsideBridge(planePoint, first, bridgeBounds))
+            {
+                // The authored seam spans this short empty interval as one support patch.
+                usesVirtualSeam = true;
+                return planePoint;
+            }
+
+            Vector3 firstPoint = ClosestPointOnFace(planePoint, first);
+            Vector3 secondPoint = ClosestPointOnFace(planePoint, second);
+            usesVirtualSeam = false;
+            return (sampleCenter - firstPoint).sqrMagnitude <= (sampleCenter - secondPoint).sqrMagnitude
+                ? firstPoint
+                : secondPoint;
+        }
+
+        private static bool IsInsideFace(Vector3 point, SpiderBoxFace face)
+        {
+            Vector3 offset = point - face.Center;
+            return Mathf.Abs(Vector3.Dot(offset, face.AxisU)) <= face.ExtentU + Physics.defaultContactOffset &&
+                   Mathf.Abs(Vector3.Dot(offset, face.AxisV)) <= face.ExtentV + Physics.defaultContactOffset;
+        }
+
+        private static bool IsInsideBridge(Vector3 point, SpiderBoxFace face, Vector4 bridgeBounds)
+        {
+            if (bridgeBounds.x > bridgeBounds.y || bridgeBounds.z > bridgeBounds.w)
+            {
+                return false;
+            }
+
+            Vector3 offset = point - face.Center;
+            float u = Vector3.Dot(offset, face.AxisU);
+            float v = Vector3.Dot(offset, face.AxisV);
+            return u >= bridgeBounds.x - Physics.defaultContactOffset &&
+                   u <= bridgeBounds.y + Physics.defaultContactOffset &&
+                   v >= bridgeBounds.z - Physics.defaultContactOffset &&
+                   v <= bridgeBounds.w + Physics.defaultContactOffset;
+        }
+
+        private static Vector3 ClosestPointOnFace(Vector3 point, SpiderBoxFace face)
+        {
+            Vector3 offset = point - face.Center;
+            float u = Mathf.Clamp(Vector3.Dot(offset, face.AxisU), -face.ExtentU, face.ExtentU);
+            float v = Mathf.Clamp(Vector3.Dot(offset, face.AxisV), -face.ExtentV, face.ExtentV);
+            return face.Center + face.AxisU * u + face.AxisV * v;
+        }
+
+        private static bool UsesExpandedSurfaceNormal(Collider collider)
+        {
+            return collider is BoxCollider ||
+                   collider is SphereCollider ||
+                   collider is CapsuleCollider ||
+                   collider is MeshCollider { convex: true };
+        }
+
+        private void AddContact(SpiderSurfaceContact contact)
+        {
+            AddContact(contact.Collider, contact.Point, contact.Normal, contact.Distance);
+        }
+
         private void AddContact(Collider collider, Vector3 point, Vector3 normal, float distance)
         {
-            if (normal.sqrMagnitude <= MIN_VECTOR_SQR_MAGNITUDE)
+            if (normal.sqrMagnitude <= MIN_VECTOR_SQR_MAGNITUDE || IsIgnoredJumpOrigin(collider))
             {
                 return;
             }
@@ -200,6 +685,54 @@ namespace Pet.Gameplay
             {
                 contacts[contactCount++] = new SpiderSurfaceContact(collider, point, normal, distance);
             }
+        }
+
+        private void UpdateJumpOriginExclusion()
+        {
+            if (!ignoresJumpOrigin)
+            {
+                return;
+            }
+
+            float searchRadius = bodyRadius + config.SurfaceSearchDistance;
+
+            for (int colliderIndex = 0; colliderIndex < jumpOriginColliderCount; colliderIndex++)
+            {
+                Collider collider = jumpOriginColliders[colliderIndex];
+
+                if ((bodyCenter - collider.ClosestPoint(bodyCenter)).sqrMagnitude <= searchRadius * searchRadius)
+                {
+                    return;
+                }
+            }
+
+            ignoresJumpOrigin = false;
+            jumpOriginColliderCount = 0;
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [Conditional("DEVELOPMENT_BUILD")]
+        private void LogTraversal(string message)
+        {
+            Debug.Log($"[SpiderTraversal] {message}", bodyCollider);
+        }
+
+        private bool IsIgnoredJumpOrigin(Collider collider)
+        {
+            if (!ignoresJumpOrigin)
+            {
+                return false;
+            }
+
+            for (int colliderIndex = 0; colliderIndex < jumpOriginColliderCount; colliderIndex++)
+            {
+                if (jumpOriginColliders[colliderIndex] == collider)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool TryBuildSurface(out Vector3 point, out Vector3 normal)
@@ -277,7 +810,7 @@ namespace Pet.Gameplay
                     score += (1f - Vector3.Dot(State.Normal, contact.Normal)) * normalPenaltyDistance;
                 }
 
-                if (score < bestScore)
+                if (IsBetterContactScore(score, contact, bestScore, contacts[anchorIndex]))
                 {
                     bestScore = score;
                     anchorIndex = contactIndex;
@@ -294,7 +827,12 @@ namespace Pet.Gameplay
 
             for (int contactIndex = 0; contactIndex < contactCount; contactIndex++)
             {
-                if (processedContacts[contactIndex] || contacts[contactIndex].Distance >= nearestDistance)
+                if (processedContacts[contactIndex] ||
+                    !IsBetterContactScore(
+                        contacts[contactIndex].Distance,
+                        contacts[contactIndex],
+                        nearestDistance,
+                        nearestIndex >= 0 ? contacts[nearestIndex] : default))
                 {
                     continue;
                 }
@@ -312,13 +850,99 @@ namespace Pet.Gameplay
 
             for (int contactIndex = 0; contactIndex < selectedContactCount; contactIndex++)
             {
-                if (Vector3.Dot(selectedContacts[contactIndex].Normal, candidate.Normal) < minimumNormalDot)
+                SpiderSurfaceContact selectedContact = selectedContacts[contactIndex];
+
+                if (Vector3.Dot(selectedContact.Normal, candidate.Normal) < minimumNormalDot ||
+                    IsSeparatedByUnsupportedBoxGap(selectedContact, candidate))
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private bool IsSeparatedByUnsupportedBoxGap(SpiderSurfaceContact first, SpiderSurfaceContact second)
+        {
+            if (first.Collider is not BoxCollider firstCollider || second.Collider is not BoxCollider secondCollider)
+            {
+                return false;
+            }
+
+            return IsAboveUnsupportedBoxGap(firstCollider, secondCollider, bodyCenter);
+        }
+
+        private bool IsAboveUnsupportedBoxGap(Collider collider, Vector3 sampleCenter, int overlappingCount)
+        {
+            if (collider is not BoxCollider boxCollider)
+            {
+                return false;
+            }
+
+            for (int colliderIndex = 0; colliderIndex < overlappingCount; colliderIndex++)
+            {
+                if (overlappingColliders[colliderIndex] is BoxCollider partner &&
+                    partner != boxCollider &&
+                    IsAboveUnsupportedBoxGap(boxCollider, partner, sampleCenter))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsAboveUnsupportedBoxGap(
+            BoxCollider firstCollider,
+            BoxCollider secondCollider,
+            Vector3 sampleCenter)
+        {
+            for (int firstFaceIndex = 0; firstFaceIndex < 6; firstFaceIndex++)
+            {
+                if (!TryCreateBoxFace(firstCollider, firstFaceIndex, sampleCenter, out SpiderBoxFace firstFace))
+                {
+                    continue;
+                }
+
+                for (int secondFaceIndex = 0; secondFaceIndex < 6; secondFaceIndex++)
+                {
+                    if (!TryCreateBoxFace(secondCollider, secondFaceIndex, sampleCenter, out SpiderBoxFace secondFace) ||
+                        !TryGetFaceSeam(firstFace, secondFace, out float gap, out Vector4 bridgeBounds) ||
+                        gap <= bodyRadius + Physics.defaultContactOffset)
+                    {
+                        continue;
+                    }
+
+                    Vector3 planePoint = sampleCenter -
+                                         firstFace.Normal * Vector3.Dot(sampleCenter - firstFace.Center, firstFace.Normal);
+
+                    if (IsInsideBridge(planePoint, firstFace, bridgeBounds))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsBetterContactScore(
+            float candidateScore,
+            SpiderSurfaceContact candidate,
+            float currentScore,
+            SpiderSurfaceContact current)
+        {
+            if (candidateScore < currentScore - SCORE_COMPARISON_EPSILON)
+            {
+                return true;
+            }
+
+            if (candidateScore > currentScore + SCORE_COMPARISON_EPSILON || current.Collider == null)
+            {
+                return false;
+            }
+
+            return candidate.Collider.GetEntityId() < current.Collider.GetEntityId();
         }
 
         private float CalculateWorldRadius()

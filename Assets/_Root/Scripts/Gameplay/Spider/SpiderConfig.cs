@@ -13,7 +13,6 @@ namespace Pet.Gameplay
         [SerializeField] private float surfaceSearchDistance = 0.3f;
         [SerializeField, Range(0f, 180f)] private float maxSurfaceBlendAngle = 100f;
         [SerializeField, Min(1)] private int attachConfirmationFrames = 2;
-        [SerializeField, Min(0)] private int detachGraceFrames = 2;
 
         [Header("Movement")]
         [SerializeField] private float maxMoveSpeed = 5f;
@@ -31,12 +30,13 @@ namespace Pet.Gameplay
 
         [Header("Airborne")]
         [SerializeField] private float airborneGravity = 18f;
+        [SerializeField] private float jumpSpeed = 5f;
+        [SerializeField, Range(0f, 1f)] private float airControlCoefficient = 0.5f;
 
         public LayerMask TraversableSurfaceMask => traversableSurfaceMask;
         public float SurfaceSearchDistance => surfaceSearchDistance;
         public float MaxSurfaceBlendAngle => maxSurfaceBlendAngle;
         public int AttachConfirmationFrames => attachConfirmationFrames;
-        public int DetachGraceFrames => detachGraceFrames;
         public float MaxMoveSpeed => maxMoveSpeed;
         public float MoveAcceleration => moveAcceleration;
         public float SurfaceHoverOffset => surfaceHoverOffset;
@@ -46,5 +46,7 @@ namespace Pet.Gameplay
         public float SurfaceAlignmentSharpness => surfaceAlignmentSharpness;
         public float HeadingAlignmentSharpness => headingAlignmentSharpness;
         public float AirborneGravity => airborneGravity;
+        public float JumpSpeed => jumpSpeed;
+        public float AirControlCoefficient => airControlCoefficient;
     }
 }

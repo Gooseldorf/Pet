@@ -19,7 +19,6 @@ MonoBehaviour:
   surfaceSearchDistance: 0.3
   maxSurfaceBlendAngle: 100
   attachConfirmationFrames: 2
-  detachGraceFrames: 2
   maxMoveSpeed: 5
   moveAcceleration: 25
   surfaceHoverOffset: 0.1
@@ -29,4 +28,6 @@ MonoBehaviour:
   surfaceAlignmentSharpness: 12
   headingAlignmentSharpness: 15
   airborneGravity: 18
+  jumpSpeed: 5
+  airControlCoefficient: 0.5
   drawSurfaceGizmos: 1

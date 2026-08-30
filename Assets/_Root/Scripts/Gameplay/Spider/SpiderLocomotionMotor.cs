@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Pet.Gameplay
 {
@@ -9,6 +11,8 @@ namespace Pet.Gameplay
         private readonly Rigidbody bodyRigidbody;
         private readonly SphereCollider bodyCollider;
         private readonly SpiderConfig config;
+        private Vector3 airborneControlVelocity;
+        private bool wasMovementBlocked;
 
         public SpiderLocomotionMotor(Rigidbody bodyRigidbody, SphereCollider bodyCollider, SpiderConfig config)
         {
@@ -19,6 +23,7 @@ namespace Pet.Gameplay
 
         public void BeginAttachment(SpiderSurfaceState surface)
         {
+            airborneControlVelocity = Vector3.zero;
             Vector3 velocity = bodyRigidbody.linearVelocity;
             float normalVelocity = Vector3.Dot(velocity, surface.Normal);
 
@@ -28,34 +33,59 @@ namespace Pet.Gameplay
             }
         }
 
-        public void Tick(SpiderSurfaceState surface, Vector2 moveInput, Transform cameraTransform, float deltaTime)
+        public void BeginJump(SpiderSurfaceState surface)
         {
+            airborneControlVelocity = Vector3.zero;
+            Vector3 tangentialVelocity = Vector3.ProjectOnPlane(bodyRigidbody.linearVelocity, surface.Normal);
+            bodyRigidbody.linearVelocity = tangentialVelocity + surface.Normal * config.JumpSpeed;
+        }
+
+        public void Tick(SpiderSurfaceDetector surfaceDetector, Vector2 moveInput, Transform cameraTransform, float deltaTime)
+        {
+            SpiderSurfaceState surface = surfaceDetector.State;
+
             if (surface.IsAttached)
             {
-                TickAttached(surface, moveInput, cameraTransform, deltaTime);
+                TickAttached(surfaceDetector, surface, moveInput, cameraTransform, deltaTime);
                 return;
             }
 
-            TickAirborne();
+            TickAirborne(moveInput, cameraTransform, deltaTime);
         }
 
         private void TickAttached(
+            SpiderSurfaceDetector surfaceDetector,
             SpiderSurfaceState surface,
             Vector2 moveInput,
             Transform cameraTransform,
             float deltaTime)
         {
+            if (!surfaceDetector.HasDetectedSurface)
+            {
+                if (!wasMovementBlocked)
+                {
+                    LogTraversal(
+                        $"Stopped at edge. position={bodyRigidbody.position}, velocity={bodyRigidbody.linearVelocity}, " +
+                        $"normal={surface.Normal}, input={moveInput}");
+                    wasMovementBlocked = true;
+                }
+
+                StopAtEdge(surfaceDetector.LastAttachedBodyPosition, surfaceDetector.LastAttachedBodyRotation);
+                return;
+            }
+
             Vector3 heading = CalculateSurfaceHeading(surface.Normal, cameraTransform);
             Vector3 moveDirection = CalculateMoveDirection(moveInput, heading, surface.Normal);
-
-            UpdateTangentialVelocity(moveDirection, surface.Normal, deltaTime);
-            UpdateAdhesion(surface, deltaTime);
-            UpdateRotation(heading, surface.Normal, deltaTime);
+            Quaternion plannedRotation = CalculateAttachedRotation(heading, surface.Normal, deltaTime);
+            UpdateAttachedVelocity(surfaceDetector, surface, moveDirection, plannedRotation, deltaTime);
+            ApplyRotation(plannedRotation);
         }
 
-        private void TickAirborne()
+        private void TickAirborne(Vector2 moveInput, Transform cameraTransform, float deltaTime)
         {
             bodyRigidbody.AddForce(Vector3.down * config.AirborneGravity, ForceMode.Acceleration);
+            UpdateAirborneControl(moveInput, cameraTransform, deltaTime);
+            UpdateAirborneRotation(cameraTransform, deltaTime);
         }
 
         private Vector3 CalculateSurfaceHeading(Vector3 surfaceNormal, Transform cameraTransform)
@@ -82,21 +112,110 @@ namespace Pet.Gameplay
             return Vector3.ClampMagnitude(moveDirection, 1f);
         }
 
-        private void UpdateTangentialVelocity(Vector3 moveDirection, Vector3 surfaceNormal, float deltaTime)
+        private void UpdateAttachedVelocity(
+            SpiderSurfaceDetector surfaceDetector,
+            SpiderSurfaceState surface,
+            Vector3 moveDirection,
+            Quaternion plannedRotation,
+            float deltaTime)
         {
             Vector3 velocity = bodyRigidbody.linearVelocity;
-            Vector3 tangentialVelocity = Vector3.ProjectOnPlane(velocity, surfaceNormal);
+            Vector3 tangentialVelocity = Vector3.ProjectOnPlane(velocity, surface.Normal);
             Vector3 targetVelocity = moveDirection * config.MaxMoveSpeed;
             Vector3 adjustedTangentialVelocity = Vector3.MoveTowards(
                 tangentialVelocity,
                 targetVelocity,
                 config.MoveAcceleration * deltaTime);
-            float normalVelocity = Vector3.Dot(velocity, surfaceNormal);
+            float adhesionNormalVelocity = CalculateAdhesionNormalVelocity(surface, velocity, deltaTime);
+            Vector3 candidateVelocity = adjustedTangentialVelocity + surface.Normal * adhesionNormalVelocity;
+            Vector3 predictedBodyCenter = CalculatePredictedBodyCenter(
+                surfaceDetector,
+                candidateVelocity,
+                plannedRotation,
+                deltaTime);
+            SpiderSurfaceContact predictedSupport = default;
+            bool hasPredictedSupport = adjustedTangentialVelocity.sqrMagnitude > MIN_VECTOR_SQR_MAGNITUDE &&
+                                       surfaceDetector.TryFindPredictedSupport(
+                                           surface,
+                                           predictedBodyCenter,
+                                           out predictedSupport);
 
-            bodyRigidbody.linearVelocity = adjustedTangentialVelocity + surfaceNormal * normalVelocity;
+            if (adjustedTangentialVelocity.sqrMagnitude > MIN_VECTOR_SQR_MAGNITUDE && !hasPredictedSupport)
+            {
+                if (!wasMovementBlocked)
+                {
+                    LogTraversal(
+                        $"Blocked movement without reachable support. position={bodyRigidbody.position}, " +
+                        $"targetVelocity={adjustedTangentialVelocity}, normal={surface.Normal}");
+                    wasMovementBlocked = true;
+                }
+
+                adjustedTangentialVelocity = Vector3.zero;
+            }
+            else if (hasPredictedSupport)
+            {
+                wasMovementBlocked = false;
+                Vector3 pathNormal = Vector3.Slerp(surface.Normal, predictedSupport.Normal, 0.5f).normalized;
+                adjustedTangentialVelocity = Quaternion.FromToRotation(surface.Normal, pathNormal) * adjustedTangentialVelocity;
+            }
+            else
+            {
+                wasMovementBlocked = false;
+            }
+
+            bodyRigidbody.linearVelocity = adjustedTangentialVelocity + surface.Normal * adhesionNormalVelocity;
         }
 
-        private void UpdateAdhesion(SpiderSurfaceState surface, float deltaTime)
+        private Vector3 CalculatePredictedBodyCenter(
+            SpiderSurfaceDetector surfaceDetector,
+            Vector3 candidateVelocity,
+            Quaternion plannedRotation,
+            float deltaTime)
+        {
+            Vector3 currentBodyCenter = surfaceDetector.BodyCenter;
+            Vector3 currentCenterOffset = currentBodyCenter - bodyRigidbody.position;
+            Quaternion rotationDelta = plannedRotation * Quaternion.Inverse(bodyRigidbody.rotation);
+            Vector3 rotatedCenterOffset = rotationDelta * currentCenterOffset;
+
+            return currentBodyCenter +
+                   candidateVelocity * deltaTime +
+                   rotatedCenterOffset -
+                   currentCenterOffset;
+        }
+
+        private void StopAtEdge(Vector3 lastAttachedBodyPosition, Quaternion lastAttachedBodyRotation)
+        {
+            bodyRigidbody.linearVelocity = Vector3.zero;
+            bodyRigidbody.angularVelocity = Vector3.zero;
+            bodyRigidbody.MovePosition(lastAttachedBodyPosition);
+            bodyRigidbody.MoveRotation(lastAttachedBodyRotation);
+        }
+
+        private void UpdateAirborneControl(Vector2 moveInput, Transform cameraTransform, float deltaTime)
+        {
+            Vector3 moveDirection = cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x;
+            moveDirection = Vector3.ClampMagnitude(moveDirection, 1f);
+            Vector3 targetControlVelocity = moveDirection * config.MaxMoveSpeed;
+            Vector3 previousControlVelocity = airborneControlVelocity;
+            airborneControlVelocity = Vector3.MoveTowards(
+                airborneControlVelocity,
+                targetControlVelocity,
+                config.MoveAcceleration * config.AirControlCoefficient * deltaTime);
+            bodyRigidbody.linearVelocity += airborneControlVelocity - previousControlVelocity;
+        }
+
+        private void UpdateAirborneRotation(Transform cameraTransform, float deltaTime)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(cameraTransform.forward, cameraTransform.up);
+            float interpolation = 1f - Mathf.Exp(-config.HeadingAlignmentSharpness * deltaTime);
+            bodyRigidbody.angularVelocity = Vector3.zero;
+            bodyRigidbody.MoveRotation(Quaternion.Slerp(bodyRigidbody.rotation, targetRotation, interpolation));
+        }
+
+        private float CalculateAdhesionNormalVelocity(
+            SpiderSurfaceState surface,
+            Vector3 velocity,
+            float deltaTime)
         {
             Vector3 bodyCenter = bodyCollider.transform.TransformPoint(bodyCollider.center);
             float bodyRadius = CalculateWorldRadius();
@@ -105,16 +224,14 @@ namespace Pet.Gameplay
             float targetNormalVelocity = Mathf.Abs(offsetError) <= config.AdhesionDeadZone
                 ? 0f
                 : offsetError * config.SurfaceStickSpeed;
-            float currentNormalVelocity = Vector3.Dot(bodyRigidbody.linearVelocity, surface.Normal);
-            float adjustedNormalVelocity = Mathf.MoveTowards(
+            float currentNormalVelocity = Vector3.Dot(velocity, surface.Normal);
+            return Mathf.MoveTowards(
                 currentNormalVelocity,
                 targetNormalVelocity,
                 config.AdhesionForce * deltaTime);
-
-            bodyRigidbody.linearVelocity += surface.Normal * (adjustedNormalVelocity - currentNormalVelocity);
         }
 
-        private void UpdateRotation(Vector3 heading, Vector3 surfaceNormal, float deltaTime)
+        private Quaternion CalculateAttachedRotation(Vector3 heading, Vector3 surfaceNormal, float deltaTime)
         {
             Quaternion targetRotation = Quaternion.LookRotation(heading, surfaceNormal);
             Quaternion surfaceRotation = Quaternion.FromToRotation(
@@ -130,8 +247,13 @@ namespace Pet.Gameplay
                 surfaceAlignedRotation,
                 targetRotation,
                 headingInterpolation);
+            return alignedRotation;
+        }
+
+        private void ApplyRotation(Quaternion rotation)
+        {
             bodyRigidbody.angularVelocity = Vector3.zero;
-            bodyRigidbody.MoveRotation(alignedRotation);
+            bodyRigidbody.MoveRotation(rotation);
         }
 
         private float CalculateWorldRadius()
@@ -139,6 +261,13 @@ namespace Pet.Gameplay
             Vector3 scale = bodyCollider.transform.lossyScale;
             float largestScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
             return bodyCollider.radius * largestScale;
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [Conditional("DEVELOPMENT_BUILD")]
+        private void LogTraversal(string message)
+        {
+            Debug.Log($"[SpiderTraversal] {message}", bodyCollider);
         }
     }
 }

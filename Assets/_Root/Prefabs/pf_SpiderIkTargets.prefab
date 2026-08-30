@@ -50,7 +50,6 @@ GameObject:
   - component: {fileID: 5736552837804110344}
   - component: {fileID: 4458825480157318386}
   - component: {fileID: 5885888057125440207}
-  - component: {fileID: 7675927218564322780}
   m_Layer: 0
   m_Name: IK_Target_L (2)
   m_TagString: Untagged
@@ -130,27 +129,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &7675927218564322780
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1996886466162010176}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2587881098222313403
 GameObject:
   m_ObjectHideFlags: 0
@@ -162,7 +140,6 @@ GameObject:
   - component: {fileID: 7477471761010295735}
   - component: {fileID: 8543398979209267637}
   - component: {fileID: 2286572731647374515}
-  - component: {fileID: 3065728611328752296}
   m_Layer: 0
   m_Name: IK_Target_L (1)
   m_TagString: Untagged
@@ -242,27 +219,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &3065728611328752296
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2587881098222313403}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3308587135041740032
 GameObject:
   m_ObjectHideFlags: 0
@@ -274,7 +230,6 @@ GameObject:
   - component: {fileID: 2552964419729032065}
   - component: {fileID: 7822451331258749318}
   - component: {fileID: 2614469390454184973}
-  - component: {fileID: 7296398184408897522}
   m_Layer: 0
   m_Name: IK_Target_R (4)
   m_TagString: Untagged
@@ -354,27 +309,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &7296398184408897522
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3308587135041740032}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5585454231533299994
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,7 +320,6 @@ GameObject:
   - component: {fileID: 5932056586006652733}
   - component: {fileID: 5587685147464692955}
   - component: {fileID: 3349610598871857002}
-  - component: {fileID: 3435896240093988207}
   m_Layer: 0
   m_Name: IK_Target_L (4)
   m_TagString: Untagged
@@ -466,27 +399,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &3435896240093988207
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5585454231533299994}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6123874637249182427
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,7 +410,6 @@ GameObject:
   - component: {fileID: 3116201047028227106}
   - component: {fileID: 4532691222658481027}
   - component: {fileID: 555733817898578030}
-  - component: {fileID: 86263363416641876}
   m_Layer: 0
   m_Name: IK_Target_R (1)
   m_TagString: Untagged
@@ -578,27 +489,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &86263363416641876
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6123874637249182427}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6219195335312180800
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,7 +500,6 @@ GameObject:
   - component: {fileID: 3903402534228255040}
   - component: {fileID: 5926786934880116702}
   - component: {fileID: 3705120981905497643}
-  - component: {fileID: 6569442184026469896}
   m_Layer: 0
   m_Name: IK_Target_L (3)
   m_TagString: Untagged
@@ -690,27 +579,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &6569442184026469896
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6219195335312180800}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6408870746429566412
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,7 +590,6 @@ GameObject:
   - component: {fileID: 7940876096107596511}
   - component: {fileID: 9134039045500723143}
   - component: {fileID: 7789928558836349230}
-  - component: {fileID: 3798188717646602677}
   m_Layer: 0
   m_Name: IK_Target_R (2)
   m_TagString: Untagged
@@ -802,27 +669,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &3798188717646602677
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6408870746429566412}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7927062328899228887
 GameObject:
   m_ObjectHideFlags: 0
@@ -834,7 +680,6 @@ GameObject:
   - component: {fileID: 5278526497004089909}
   - component: {fileID: 3259435138085220961}
   - component: {fileID: 7260109502127417943}
-  - component: {fileID: 1423582248686195040}
   m_Layer: 0
   m_Name: IK_Target_R (3)
   m_TagString: Untagged
@@ -914,24 +759,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1423582248686195040
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7927062328899228887}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}

@@ -35,6 +35,15 @@ namespace Pet.Gameplay
         [SerializeField] private float jumpSpeed = 5f;
         [SerializeField, Range(0f, 1f)] private float airControlCoefficient = 0.5f;
 
+        [Header("Legs")]
+        [SerializeField, Min(0f)] private float legSearchRadius = 0.3f;
+        [SerializeField, Min(0f)] private float legMaxReach = 1.25f;
+        [SerializeField, Min(0f)] private float legStepDistance = 0.3f;
+        [SerializeField, Min(0f)] private float legStepHeight = 0.2f;
+        [SerializeField, Min(0.01f)] private float legStepDuration = 0.18f;
+        [SerializeField, Min(0f)] private float legFootOffset = 0.015f;
+        [SerializeField, Min(0f)] private float legUngroundedResampleInterval = 0.25f;
+
         public LayerMask TraversableSurfaceMask => traversableSurfaceMask;
         public float SurfaceSearchDistance => surfaceSearchDistance;
         public float MaxSurfaceBlendAngle => maxSurfaceBlendAngle;
@@ -52,5 +61,12 @@ namespace Pet.Gameplay
         public float AirborneGravity => airborneGravity;
         public float JumpSpeed => jumpSpeed;
         public float AirControlCoefficient => airControlCoefficient;
+        public float LegSearchRadius => legSearchRadius;
+        public float LegMaxReach => legMaxReach;
+        public float LegStepDistance => legStepDistance;
+        public float LegStepHeight => legStepHeight;
+        public float LegStepDuration => legStepDuration;
+        public float LegFootOffset => legFootOffset;
+        public float LegUngroundedResampleInterval => legUngroundedResampleInterval;
     }
 }

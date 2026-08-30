@@ -33,3 +33,10 @@ MonoBehaviour:
   jumpSpeed: 5
   airControlCoefficient: 0.5
   drawSurfaceGizmos: 1
+  legSearchRadius: 0.3
+  legMaxReach: 1.25
+  legStepDistance: 0.3
+  legStepHeight: 0.2
+  legStepDuration: 0.18
+  legFootOffset: 0.015
+  legUngroundedResampleInterval: 0.25

@@ -26,6 +26,8 @@ MonoBehaviour:
   surfaceStickSpeed: 3
   adhesionDeadZone: 0.05
   surfaceAlignmentSharpness: 12
+  movingHeadingInputThreshold: 0.1
+  movingHeadingAlignmentSharpness: 10
   headingAlignmentSharpness: 15
   airborneGravity: 18
   jumpSpeed: 5

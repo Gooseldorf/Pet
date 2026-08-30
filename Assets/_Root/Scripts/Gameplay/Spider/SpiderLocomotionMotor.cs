@@ -76,7 +76,11 @@ namespace Pet.Gameplay
 
             Vector3 heading = CalculateSurfaceHeading(surface.Normal, cameraTransform);
             Vector3 moveDirection = CalculateMoveDirection(moveInput, heading, surface.Normal);
-            Quaternion plannedRotation = CalculateAttachedRotation(heading, surface.Normal, deltaTime);
+            Quaternion plannedRotation = CalculateAttachedRotation(
+                heading,
+                surface.Normal,
+                moveInput.sqrMagnitude > config.MovingHeadingInputThreshold * config.MovingHeadingInputThreshold,
+                deltaTime);
             UpdateAttachedVelocity(surfaceDetector, surface, moveDirection, plannedRotation, deltaTime);
             ApplyRotation(plannedRotation);
         }
@@ -231,9 +235,12 @@ namespace Pet.Gameplay
                 config.AdhesionForce * deltaTime);
         }
 
-        private Quaternion CalculateAttachedRotation(Vector3 heading, Vector3 surfaceNormal, float deltaTime)
+        private Quaternion CalculateAttachedRotation(
+            Vector3 heading,
+            Vector3 surfaceNormal,
+            bool shouldAlignHeading,
+            float deltaTime)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(heading, surfaceNormal);
             Quaternion surfaceRotation = Quaternion.FromToRotation(
                 bodyRigidbody.transform.up,
                 surfaceNormal) * bodyRigidbody.rotation;
@@ -242,12 +249,18 @@ namespace Pet.Gameplay
                 bodyRigidbody.rotation,
                 surfaceRotation,
                 surfaceInterpolation);
-            float headingInterpolation = 1f - Mathf.Exp(-config.HeadingAlignmentSharpness * deltaTime);
-            Quaternion alignedRotation = Quaternion.Slerp(
+
+            if (!shouldAlignHeading)
+            {
+                return surfaceAlignedRotation;
+            }
+
+            Quaternion targetRotation = Quaternion.LookRotation(heading, surfaceNormal);
+            float headingInterpolation = 1f - Mathf.Exp(-config.MovingHeadingAlignmentSharpness * deltaTime);
+            return Quaternion.Slerp(
                 surfaceAlignedRotation,
                 targetRotation,
                 headingInterpolation);
-            return alignedRotation;
         }
 
         private void ApplyRotation(Quaternion rotation)

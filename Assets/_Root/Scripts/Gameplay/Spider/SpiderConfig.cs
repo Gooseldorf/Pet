@@ -26,6 +26,8 @@ namespace Pet.Gameplay
 
         [Header("Orientation")]
         [SerializeField] private float surfaceAlignmentSharpness = 12f;
+        [SerializeField, Min(0f)] private float movingHeadingInputThreshold = 0.1f;
+        [SerializeField, Min(0f)] private float movingHeadingAlignmentSharpness = 10f;
         [SerializeField] private float headingAlignmentSharpness = 15f;
 
         [Header("Airborne")]
@@ -44,6 +46,8 @@ namespace Pet.Gameplay
         public float SurfaceStickSpeed => surfaceStickSpeed;
         public float AdhesionDeadZone => adhesionDeadZone;
         public float SurfaceAlignmentSharpness => surfaceAlignmentSharpness;
+        public float MovingHeadingInputThreshold => movingHeadingInputThreshold;
+        public float MovingHeadingAlignmentSharpness => movingHeadingAlignmentSharpness;
         public float HeadingAlignmentSharpness => headingAlignmentSharpness;
         public float AirborneGravity => airborneGravity;
         public float JumpSpeed => jumpSpeed;

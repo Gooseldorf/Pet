@@ -19,7 +19,7 @@ MonoBehaviour:
   surfaceSearchDistance: 0.3
   maxSurfaceBlendAngle: 100
   attachConfirmationFrames: 2
-  maxMoveSpeed: 5
+  maxMoveSpeed: 3
   moveAcceleration: 25
   surfaceHoverOffset: 0.1
   adhesionForce: 30
@@ -32,11 +32,10 @@ MonoBehaviour:
   airborneGravity: 18
   jumpSpeed: 5
   airControlCoefficient: 0.5
-  drawSurfaceGizmos: 1
-  legSearchRadius: 0.3
-  legMaxReach: 1.25
+  legSearchRadius: 0.2
+  legMaxReach: 0.8
   legStepDistance: 0.3
   legStepHeight: 0.2
-  legStepDuration: 0.18
+  legStepDuration: 0.02
   legFootOffset: 0.015
   legUngroundedResampleInterval: 0.25

@@ -10,6 +10,7 @@ namespace Pet.Gameplay
         private readonly InputActionsProvider inputActionsProvider;
         private readonly SpiderPlayerSpawner spiderPlayerSpawner;
         private readonly CameraSpawner cameraSpawner;
+        private readonly GameplayTester gameplayTester;
         private readonly UIHudController gameplayHudController;
         private readonly UIGameplayController uiGameplayController;
 
@@ -17,12 +18,14 @@ namespace Pet.Gameplay
             InputActionsProvider inputActionsProvider,
             SpiderPlayerSpawner spiderPlayerSpawner,
             CameraSpawner cameraSpawner,
+            GameplayTester gameplayTester,
             UIHudController gameplayHudController,
             UIGameplayController uiGameplayController)
         {
             this.inputActionsProvider = inputActionsProvider;
             this.spiderPlayerSpawner = spiderPlayerSpawner;
             this.cameraSpawner = cameraSpawner;
+            this.gameplayTester = gameplayTester;
             this.gameplayHudController = gameplayHudController;
             this.uiGameplayController = uiGameplayController;
         }
@@ -32,6 +35,7 @@ namespace Pet.Gameplay
             SpiderPlayerController player = spiderPlayerSpawner.Spawn();
             CameraRig cameraRig = cameraSpawner.Spawn();
             cameraRig.Bind(player);
+            gameplayTester.Initialize(player, cameraRig);
             inputActionsProvider.SetEnabledMaps(InputMapKind.PlayerAndUI);
             uiGameplayController.Initialize();
             await gameplayHudController.ShowAsync(cancellation);

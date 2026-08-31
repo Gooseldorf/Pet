@@ -39,6 +39,7 @@ namespace Pet.Gameplay
         [SerializeField, Min(0f)] private float legSearchRadius = 0.3f;
         [SerializeField, Min(0f)] private float legMaxReach = 1.25f;
         [SerializeField, Min(0f)] private float legStepDistance = 0.3f;
+        [SerializeField, Min(0f)] private float legStepForwardDistance = 0.15f;
         [SerializeField, Min(0f)] private float legStepHeight = 0.2f;
         [SerializeField, Min(0.01f)] private float legStepDuration = 0.18f;
         [SerializeField, Min(0f)] private float legFootOffset = 0.015f;
@@ -64,6 +65,7 @@ namespace Pet.Gameplay
         public float LegSearchRadius => legSearchRadius;
         public float LegMaxReach => legMaxReach;
         public float LegStepDistance => legStepDistance;
+        public float LegStepForwardDistance => legStepForwardDistance;
         public float LegStepHeight => legStepHeight;
         public float LegStepDuration => legStepDuration;
         public float LegFootOffset => legFootOffset;

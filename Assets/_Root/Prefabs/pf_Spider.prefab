@@ -72,7 +72,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7859335194884380890
 Transform:
   m_ObjectHideFlags: 0
@@ -1538,9 +1538,41 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1318932070102221969}
     m_Modifications:
+    - target: {fileID: 555733817898578030, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 744333379312575360, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
       propertyPath: m_Name
       value: pf_SpiderIkTargets
+      objectReference: {fileID: 0}
+    - target: {fileID: 2286572731647374515, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2614469390454184973, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349610598871857002, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705120981905497643, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5885888057125440207, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260109502127417943, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7789928558836349230, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8447579732948353116, guid: e6b916e8a0d062c408421dbe68eaed36, type: 3}
       propertyPath: m_LocalScale.x

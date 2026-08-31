@@ -7,6 +7,7 @@ namespace Pet.Gameplay
     public sealed class SpiderLegController : MonoBehaviour
     {
         private const float MIN_VECTOR_SQR_MAGNITUDE = 0.000001f;
+        private const float MIN_STEP_DIRECTION_SPEED = 0.05f;
 
         [Header("Required References")]
         [SerializeField] private SpiderLegBinding[] legs;
@@ -33,7 +34,7 @@ namespace Pet.Gameplay
             IsInitialized = true;
         }
 
-        public void Tick(float deltaTime, bool shouldRetract)
+        public void Tick(float deltaTime, bool shouldRetract, Vector3 bodyVelocity)
         {
             if (!IsInitialized)
             {
@@ -58,11 +59,12 @@ namespace Pet.Gameplay
                 isRetracting = false;
             }
 
+            Vector3 stepDirection = CalculateStepDirection(bodyVelocity);
             bool hasSteppingLegs = false;
 
             foreach (SpiderLegBinding leg in legs)
             {
-                UpdateDesiredPosition(leg);
+                UpdateDesiredPosition(leg, stepDirection);
 
                 if (leg.IsStepping)
                 {
@@ -172,9 +174,10 @@ namespace Pet.Gameplay
             return startedStep;
         }
 
-        private void UpdateDesiredPosition(SpiderLegBinding leg)
+        private void UpdateDesiredPosition(SpiderLegBinding leg, Vector3 stepDirection)
         {
-            leg.DesiredPosition = transform.TransformPoint(leg.RestPositionLocal);
+            Vector3 neutralPosition = transform.TransformPoint(leg.RestPositionLocal);
+            leg.DesiredPosition = neutralPosition + stepDirection * config.LegStepForwardDistance;
         }
 
         private bool NeedsStep(SpiderLegBinding leg)
@@ -255,8 +258,19 @@ namespace Pet.Gameplay
             if (leg.StepProgress >= 1f)
             {
                 leg.IsStepping = false;
-                leg.NextSupportSearchTime = Time.time + config.LegUngroundedResampleInterval;
             }
+        }
+
+        private Vector3 CalculateStepDirection(Vector3 bodyVelocity)
+        {
+            Vector3 tangentialVelocity = Vector3.ProjectOnPlane(bodyVelocity, transform.up);
+
+            if (tangentialVelocity.sqrMagnitude < MIN_STEP_DIRECTION_SPEED * MIN_STEP_DIRECTION_SPEED)
+            {
+                return Vector3.zero;
+            }
+
+            return tangentialVelocity.normalized;
         }
 
         private Quaternion CalculateTargetRotation(Vector3 normal)
@@ -301,7 +315,7 @@ namespace Pet.Gameplay
 
             foreach (SpiderLegBinding leg in legs)
             {
-                UpdateDesiredPosition(leg);
+                UpdateDesiredPosition(leg, Vector3.zero);
                 leg.IsStepping = false;
                 leg.SupportCollider = null;
                 leg.Target.SetPositionAndRotation(

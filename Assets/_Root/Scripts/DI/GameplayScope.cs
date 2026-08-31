@@ -22,6 +22,7 @@ namespace Pet.Gameplay
             builder.RegisterComponent(spiderSpawnPoint);
             builder.Register<SpiderPlayerSpawner>(Lifetime.Scoped);
             builder.Register<CameraSpawner>(Lifetime.Scoped);
+            builder.Register<GameplayTester>(Lifetime.Scoped);
             builder.RegisterInstance(gameplayHudConfig);
             builder.RegisterInstance(pauseMenuConfig);
             builder.Register<UIHudController>(Lifetime.Scoped);

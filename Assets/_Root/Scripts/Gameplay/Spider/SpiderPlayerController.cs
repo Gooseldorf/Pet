@@ -76,7 +76,7 @@ namespace Pet.Gameplay
             bool shouldRetractLegs = surfaceDetector.HasSample &&
                                       !surfaceDetector.HasDetectedSurface &&
                                       !surfaceDetector.State.IsAttached;
-            legController.Tick(Time.deltaTime, shouldRetractLegs);
+            legController.Tick(Time.deltaTime, shouldRetractLegs, bodyRigidbody.linearVelocity);
         }
     }
 }

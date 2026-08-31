@@ -21,6 +21,7 @@ namespace Pet.Input
         public InputAction Previous => actions.Player.Previous;
         public InputAction Next => actions.Player.Next;
         public InputAction Sprint => actions.Player.Sprint;
+        public InputAction Respawn => actions.Player.Respawn;
 
         public InputAction Navigate => actions.UI.Navigate;
         public InputAction Submit => actions.UI.Submit;

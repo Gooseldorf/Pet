@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Pet.Gameplay
 {
-    public readonly struct SpiderLegSurfaceContact
+    internal readonly struct SpiderLegSurfaceContact
     {
         public SpiderLegSurfaceContact(Collider collider, Vector3 point, Vector3 normal, float score)
         {

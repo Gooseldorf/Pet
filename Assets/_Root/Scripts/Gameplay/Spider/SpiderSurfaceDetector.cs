@@ -4,14 +4,15 @@ using Debug = UnityEngine.Debug;
 
 namespace Pet.Gameplay
 {
-    public sealed class SpiderSurfaceDetector
+    internal sealed class SpiderSurfaceDetector
     {
         private const int MAX_OVERLAPPING_COLLIDERS = 32;
-        private const int MAX_CONTACTS = 64;
+        private const int INITIAL_CONTACT_CAPACITY = 64;
         private const float NORMAL_DEDUPLICATION_DOT = 0.999f;
         private const float MIN_VECTOR_SQR_MAGNITUDE = 0.000001f;
         private const float FACE_ALIGNMENT_DOT = 0.999f;
         private const float SCORE_COMPARISON_EPSILON = 0.0001f;
+        private const float ATTACHMENT_CONFIRMATION_NORMAL_DOT = 0.95f;
 
         private static readonly Vector3[] probeDirections =
         {
@@ -37,22 +38,26 @@ namespace Pet.Gameplay
 
         private readonly SphereCollider bodyCollider;
         private readonly SpiderConfig config;
-        private readonly Collider[] overlappingColliders = new Collider[MAX_OVERLAPPING_COLLIDERS];
-        private readonly SpiderSurfaceContact[] contacts = new SpiderSurfaceContact[MAX_CONTACTS];
-        private readonly SpiderSurfaceContact[] selectedContacts = new SpiderSurfaceContact[MAX_CONTACTS];
-        private readonly Collider[] jumpOriginColliders = new Collider[MAX_CONTACTS];
-        private readonly RaycastHit[] visibilityHits = new RaycastHit[MAX_OVERLAPPING_COLLIDERS];
-        private readonly bool[] processedContacts = new bool[MAX_CONTACTS];
+        private Collider[] overlappingColliders = new Collider[MAX_OVERLAPPING_COLLIDERS];
+        private SpiderSurfaceContact[] contacts = new SpiderSurfaceContact[INITIAL_CONTACT_CAPACITY];
+        private SpiderSurfaceContact[] selectedContacts = new SpiderSurfaceContact[INITIAL_CONTACT_CAPACITY];
+        private Collider[] jumpOriginColliders = new Collider[INITIAL_CONTACT_CAPACITY];
+        private bool[] processedContacts = new bool[INITIAL_CONTACT_CAPACITY];
+        private BoxCollider[] cachedBoxColliders = new BoxCollider[MAX_OVERLAPPING_COLLIDERS];
+        private SpiderBoxFace[] cachedBoxFaces = new SpiderBoxFace[MAX_OVERLAPPING_COLLIDERS * 6];
 
         private int contactCount;
         private int selectedContactCount;
         private int attachmentFrames;
         private int jumpOriginColliderCount;
+        private int cachedBoxColliderCount;
         private Vector3 bodyCenter;
         private float bodyRadius;
         private Vector3 lastAttachedBodyPosition;
         private Quaternion lastAttachedBodyRotation;
+        private Vector3 confirmationNormal;
         private bool ignoresJumpOrigin;
+        private bool hasConfirmationCandidate;
 
         public SpiderSurfaceDetector(SphereCollider bodyCollider, SpiderConfig config)
         {
@@ -74,9 +79,10 @@ namespace Pet.Gameplay
         public void Sample()
         {
             bodyCenter = bodyCollider.transform.TransformPoint(bodyCollider.center);
-            bodyRadius = CalculateWorldRadius();
+            bodyRadius = SpiderColliderMetrics.CalculateWorldRadius(bodyCollider);
             HasSample = true;
             contactCount = 0;
+            cachedBoxColliderCount = 0;
             UpdateJumpOriginExclusion();
 
             CollectClosestPointContacts();
@@ -85,7 +91,21 @@ namespace Pet.Gameplay
             if (TryBuildSurface(out Vector3 point, out Vector3 normal))
             {
                 HasDetectedSurface = true;
-                attachmentFrames++;
+
+                if (!State.IsAttached)
+                {
+                    if (hasConfirmationCandidate &&
+                        Vector3.Dot(confirmationNormal, normal) >= ATTACHMENT_CONFIRMATION_NORMAL_DOT)
+                    {
+                        attachmentFrames++;
+                    }
+                    else
+                    {
+                        confirmationNormal = normal;
+                        hasConfirmationCandidate = true;
+                        attachmentFrames = 1;
+                    }
+                }
 
                 if (State.IsAttached || attachmentFrames >= config.AttachConfirmationFrames)
                 {
@@ -99,16 +119,24 @@ namespace Pet.Gameplay
 
             HasDetectedSurface = false;
             attachmentFrames = 0;
+            hasConfirmationCandidate = false;
+            selectedContactCount = 0;
 
             if (State.IsAttached)
             {
                 LogTraversal($"Sample found no support. contacts={contactCount}, position={bodyCenter}, normal={State.Normal}");
+                State.SetAirborne();
             }
         }
 
         public void BeginJump()
         {
             jumpOriginColliderCount = 0;
+
+            if (jumpOriginColliders.Length < State.Colliders.Count)
+            {
+                System.Array.Resize(ref jumpOriginColliders, State.Colliders.Count);
+            }
 
             foreach (Collider collider in State.Colliders)
             {
@@ -117,6 +145,7 @@ namespace Pet.Gameplay
 
             ignoresJumpOrigin = jumpOriginColliderCount > 0;
             attachmentFrames = 0;
+            hasConfirmationCandidate = false;
             HasDetectedSurface = false;
             State.SetAirborne();
         }
@@ -128,12 +157,7 @@ namespace Pet.Gameplay
         {
             predictedSupport = default;
             float searchRadius = bodyRadius + config.SurfaceSearchDistance;
-            int overlappingCount = Physics.OverlapSphereNonAlloc(
-                predictedBodyCenter,
-                searchRadius,
-                overlappingColliders,
-                config.TraversableSurfaceMask,
-                QueryTriggerInteraction.Ignore);
+            int overlappingCount = FindOverlappingColliders(predictedBodyCenter, searchRadius);
             float minimumNormalDot = Mathf.Cos(config.MaxSurfaceBlendAngle * Mathf.Deg2Rad);
             float normalPenaltyDistance = config.SurfaceSearchDistance * 0.25f;
             float bestScore = float.MaxValue;
@@ -181,12 +205,7 @@ namespace Pet.Gameplay
         private void CollectClosestPointContacts()
         {
             float searchRadius = bodyRadius + config.SurfaceSearchDistance;
-            int overlappingCount = Physics.OverlapSphereNonAlloc(
-                bodyCenter,
-                searchRadius,
-                overlappingColliders,
-                config.TraversableSurfaceMask,
-                QueryTriggerInteraction.Ignore);
+            int overlappingCount = FindOverlappingColliders(bodyCenter, searchRadius);
 
             for (int colliderIndex = 0; colliderIndex < overlappingCount; colliderIndex++)
             {
@@ -406,42 +425,82 @@ namespace Pet.Gameplay
                 return false;
             }
 
-            int hitCount = Physics.RaycastNonAlloc(
+            if (!Physics.Raycast(
                 sampleCenter,
                 toSupport / supportDistance,
-                visibilityHits,
+                out RaycastHit hit,
                 supportDistance + Physics.defaultContactOffset,
                 config.TraversableSurfaceMask,
-                QueryTriggerInteraction.Ignore);
-            float nearestHitDistance = float.MaxValue;
-            Collider nearestCollider = null;
-
-            for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
-            {
-                RaycastHit hit = visibilityHits[hitIndex];
-
-                if (hit.distance >= nearestHitDistance)
-                {
-                    continue;
-                }
-
-                nearestHitDistance = hit.distance;
-                nearestCollider = hit.collider;
-            }
-
-            if (nearestCollider == null)
+                QueryTriggerInteraction.Ignore))
             {
                 return usesVirtualSeam;
             }
 
-            return nearestCollider == source || nearestCollider == seamPartner;
+            return hit.collider == source || hit.collider == seamPartner;
         }
 
-        private static bool TryCreateBoxFace(
+        private bool TryCreateBoxFace(
             BoxCollider collider,
             int faceIndex,
             Vector3 sampleCenter,
             out SpiderBoxFace face)
+        {
+            face = GetBoxFace(collider, faceIndex);
+
+            if (Vector3.Dot(sampleCenter - face.Center, face.Normal) < -Physics.defaultContactOffset)
+            {
+                face = default;
+                return false;
+            }
+
+            return true;
+        }
+
+        private SpiderBoxFace GetBoxFace(BoxCollider collider, int faceIndex)
+        {
+            int colliderIndex = FindCachedBoxCollider(collider);
+
+            if (colliderIndex < 0)
+            {
+                colliderIndex = CacheBoxCollider(collider);
+            }
+
+            return cachedBoxFaces[colliderIndex * 6 + faceIndex];
+        }
+
+        private int FindCachedBoxCollider(BoxCollider collider)
+        {
+            for (int colliderIndex = 0; colliderIndex < cachedBoxColliderCount; colliderIndex++)
+            {
+                if (cachedBoxColliders[colliderIndex] == collider)
+                {
+                    return colliderIndex;
+                }
+            }
+
+            return -1;
+        }
+
+        private int CacheBoxCollider(BoxCollider collider)
+        {
+            if (cachedBoxColliderCount == cachedBoxColliders.Length)
+            {
+                System.Array.Resize(ref cachedBoxColliders, cachedBoxColliders.Length * 2);
+                System.Array.Resize(ref cachedBoxFaces, cachedBoxFaces.Length * 2);
+            }
+
+            int colliderIndex = cachedBoxColliderCount++;
+            cachedBoxColliders[colliderIndex] = collider;
+
+            for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+            {
+                cachedBoxFaces[colliderIndex * 6 + faceIndex] = CreateBoxFace(collider, faceIndex);
+            }
+
+            return colliderIndex;
+        }
+
+        private static SpiderBoxFace CreateBoxFace(BoxCollider collider, int faceIndex)
         {
             int normalAxis = faceIndex / 2;
             float normalSign = faceIndex % 2 == 0 ? 1f : -1f;
@@ -451,13 +510,6 @@ namespace Pet.Gameplay
             Transform transform = collider.transform;
             Vector3 normal = transform.worldToLocalMatrix.transpose.MultiplyVector(localNormal).normalized;
             Vector3 center = transform.TransformPoint(localCenter);
-
-            if (Vector3.Dot(sampleCenter - center, normal) < -Physics.defaultContactOffset)
-            {
-                face = default;
-                return false;
-            }
-
             int axisU = (normalAxis + 1) % 3;
             int axisV = (normalAxis + 2) % 3;
             Vector3 localU = GetAxis(axisU);
@@ -467,14 +519,13 @@ namespace Pet.Gameplay
             float extentU = GetAxisValue(localExtents, axisU) * worldU.magnitude;
             float extentV = GetAxisValue(localExtents, axisV) * worldV.magnitude;
 
-            face = new SpiderBoxFace(
+            return new SpiderBoxFace(
                 center,
                 normal,
                 worldU.normalized,
                 worldV.normalized,
                 extentU,
                 extentV);
-            return true;
         }
 
         private static Vector3 GetAxis(int axis)
@@ -681,10 +732,14 @@ namespace Pet.Gameplay
                 return;
             }
 
-            if (contactCount < contacts.Length)
+            if (contactCount == contacts.Length)
             {
-                contacts[contactCount++] = new SpiderSurfaceContact(collider, point, normal, distance);
+                System.Array.Resize(ref contacts, contacts.Length * 2);
+                System.Array.Resize(ref selectedContacts, selectedContacts.Length * 2);
+                System.Array.Resize(ref processedContacts, processedContacts.Length * 2);
             }
+
+            contacts[contactCount++] = new SpiderSurfaceContact(collider, point, normal, distance);
         }
 
         private void UpdateJumpOriginExclusion()
@@ -696,14 +751,39 @@ namespace Pet.Gameplay
 
             float searchRadius = bodyRadius + config.SurfaceSearchDistance;
 
+            Rigidbody bodyRigidbody = bodyCollider.attachedRigidbody;
+            bool isLeavingJumpOrigin = false;
+
             for (int colliderIndex = 0; colliderIndex < jumpOriginColliderCount; colliderIndex++)
             {
                 Collider collider = jumpOriginColliders[colliderIndex];
 
-                if ((bodyCenter - collider.ClosestPoint(bodyCenter)).sqrMagnitude <= searchRadius * searchRadius)
+                if (collider == null)
                 {
+                    continue;
+                }
+
+                Vector3 closestPoint = collider.ClosestPoint(bodyCenter);
+                Vector3 fromSurface = bodyCenter - closestPoint;
+
+                if (fromSurface.sqrMagnitude > searchRadius * searchRadius)
+                {
+                    continue;
+                }
+
+                if (Vector3.Dot(bodyRigidbody.linearVelocity, fromSurface) < 0f)
+                {
+                    ignoresJumpOrigin = false;
+                    jumpOriginColliderCount = 0;
                     return;
                 }
+
+                isLeavingJumpOrigin = true;
+            }
+
+            if (isLeavingJumpOrigin)
+            {
+                return;
             }
 
             ignoresJumpOrigin = false;
@@ -733,6 +813,26 @@ namespace Pet.Gameplay
             }
 
             return false;
+        }
+
+        private int FindOverlappingColliders(Vector3 center, float radius)
+        {
+            while (true)
+            {
+                int count = Physics.OverlapSphereNonAlloc(
+                    center,
+                    radius,
+                    overlappingColliders,
+                    config.TraversableSurfaceMask,
+                    QueryTriggerInteraction.Ignore);
+
+                if (count < overlappingColliders.Length)
+                {
+                    return count;
+                }
+
+                System.Array.Resize(ref overlappingColliders, overlappingColliders.Length * 2);
+            }
         }
 
         private bool TryBuildSurface(out Vector3 point, out Vector3 normal)
@@ -945,11 +1045,5 @@ namespace Pet.Gameplay
             return candidate.Collider.GetEntityId() < current.Collider.GetEntityId();
         }
 
-        private float CalculateWorldRadius()
-        {
-            Vector3 scale = bodyCollider.transform.lossyScale;
-            float largestScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
-            return bodyCollider.radius * largestScale;
-        }
     }
 }

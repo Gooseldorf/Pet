@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace Pet.Gameplay
@@ -6,11 +7,17 @@ namespace Pet.Gameplay
     public sealed class SpiderSurfaceState
     {
         private readonly List<Collider> colliders = new();
+        private readonly ReadOnlyCollection<Collider> readOnlyColliders;
+
+        public SpiderSurfaceState()
+        {
+            readOnlyColliders = colliders.AsReadOnly();
+        }
 
         public bool IsAttached { get; private set; }
         public Vector3 Point { get; private set; }
         public Vector3 Normal { get; private set; } = Vector3.up;
-        public IReadOnlyList<Collider> Colliders => colliders;
+        public IReadOnlyList<Collider> Colliders => readOnlyColliders;
 
         internal void SetAttached(Vector3 point, Vector3 normal, SpiderSurfaceContact[] contacts, int contactCount)
         {

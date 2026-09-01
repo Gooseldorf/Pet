@@ -24,9 +24,14 @@ namespace Pet.Gameplay
         internal Vector3 StepStartPosition { get; set; }
         internal Vector3 StepStartNormal { get; set; }
         internal Quaternion StepStartRotation { get; set; }
-        internal Quaternion StepTargetRotation { get; set; }
+        internal Vector3 StepTargetPoint { get; set; }
+        internal Vector3 StepTargetNormal { get; set; }
+        internal Collider StepTargetCollider { get; set; }
         internal float StepProgress { get; set; }
         internal float NextSupportSearchTime { get; set; }
+        internal Vector3 RetractStartPosition { get; set; }
+        internal Quaternion RetractStartRotation { get; set; }
+        internal float RetractProgress { get; set; }
         internal bool IsStepping { get; set; }
         internal bool HasLoggedSupportSearchFailure { get; set; }
         internal bool HasSupport => SupportCollider != null;

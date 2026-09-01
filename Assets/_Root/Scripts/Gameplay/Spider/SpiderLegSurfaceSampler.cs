@@ -2,13 +2,13 @@ using UnityEngine;
 
 namespace Pet.Gameplay
 {
-    public sealed class SpiderLegSurfaceSampler
+    internal sealed class SpiderLegSurfaceSampler
     {
         private const int MAX_OVERLAPPING_COLLIDERS = 32;
         private const float MIN_VECTOR_SQR_MAGNITUDE = 0.000001f;
         private const float SCORE_COMPARISON_EPSILON = 0.0001f;
 
-        private readonly Collider[] overlappingColliders = new Collider[MAX_OVERLAPPING_COLLIDERS];
+        private Collider[] overlappingColliders = new Collider[MAX_OVERLAPPING_COLLIDERS];
         private readonly LayerMask traversableSurfaceMask;
         private readonly float searchRadius;
 
@@ -28,12 +28,8 @@ namespace Pet.Gameplay
             out SpiderLegSurfaceContact support)
         {
             support = default;
-            int overlappingCount = Physics.OverlapSphereNonAlloc(
-                desiredPosition,
-                searchRadius,
-                overlappingColliders,
-                traversableSurfaceMask,
-                QueryTriggerInteraction.Ignore);
+            desiredPosition = ClampDesiredPosition(desiredPosition, rootPosition, maxReach, footOffset);
+            int overlappingCount = FindOverlappingColliders(desiredPosition);
             float bestScore = float.MaxValue;
 
             for (int colliderIndex = 0; colliderIndex < overlappingCount; colliderIndex++)
@@ -138,7 +134,9 @@ namespace Pet.Gameplay
 
             Vector3 targetPosition = hit.point + hit.normal * footOffset;
 
-            if (Vector3.Distance(rootPosition, targetPosition) > maxReach)
+            if (Vector3.Dot(rootPosition - hit.point, hit.normal) <= 0f ||
+                Vector3.Distance(rootPosition, targetPosition) > maxReach ||
+                !HasClearPath(rootPosition, targetPosition))
             {
                 return false;
             }
@@ -149,6 +147,57 @@ namespace Pet.Gameplay
                 hit.normal,
                 Vector3.Distance(desiredPosition, hit.point));
             return true;
+        }
+
+        private static Vector3 ClampDesiredPosition(
+            Vector3 desiredPosition,
+            Vector3 rootPosition,
+            float maxReach,
+            float footOffset)
+        {
+            Vector3 rootToDesired = desiredPosition - rootPosition;
+            float maximumDesiredDistance = Mathf.Max(0f, maxReach - footOffset);
+
+            if (rootToDesired.sqrMagnitude <= maximumDesiredDistance * maximumDesiredDistance)
+            {
+                return desiredPosition;
+            }
+
+            return rootPosition + rootToDesired.normalized * maximumDesiredDistance;
+        }
+
+        private bool HasClearPath(Vector3 rootPosition, Vector3 targetPosition)
+        {
+            Vector3 rootToTarget = targetPosition - rootPosition;
+            float distance = rootToTarget.magnitude;
+
+            return distance <= Physics.defaultContactOffset ||
+                   !Physics.Raycast(
+                       rootPosition,
+                       rootToTarget / distance,
+                       distance - Physics.defaultContactOffset,
+                       traversableSurfaceMask,
+                       QueryTriggerInteraction.Ignore);
+        }
+
+        private int FindOverlappingColliders(Vector3 desiredPosition)
+        {
+            while (true)
+            {
+                int count = Physics.OverlapSphereNonAlloc(
+                    desiredPosition,
+                    searchRadius,
+                    overlappingColliders,
+                    traversableSurfaceMask,
+                    QueryTriggerInteraction.Ignore);
+
+                if (count < overlappingColliders.Length)
+                {
+                    return count;
+                }
+
+                System.Array.Resize(ref overlappingColliders, overlappingColliders.Length * 2);
+            }
         }
     }
 }

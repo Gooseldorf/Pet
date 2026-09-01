@@ -26,9 +26,9 @@ namespace Pet.Gameplay
             this.config = config;
             surfaceSampler = new SpiderLegSurfaceSampler(config);
 
-            foreach (SpiderLegBinding leg in legs)
+            for (int legIndex = 0; legIndex < legs.Length; legIndex++)
             {
-                InitializeLeg(leg);
+                InitializeLeg(legs[legIndex], legIndex);
             }
 
             IsInitialized = true;
@@ -46,6 +46,7 @@ namespace Pet.Gameplay
                 if (!isRetracting)
                 {
                     LogLegs("Entering airborne leg retraction.");
+                    BeginRetraction();
                 }
 
                 isRetracting = true;
@@ -69,7 +70,7 @@ namespace Pet.Gameplay
                 if (leg.IsStepping)
                 {
                     AdvanceStep(leg, deltaTime);
-                    hasSteppingLegs = true;
+                    hasSteppingLegs |= leg.IsStepping;
                     continue;
                 }
 
@@ -79,14 +80,9 @@ namespace Pet.Gameplay
                 }
             }
 
-            if (hasSteppingLegs)
-            {
-                return;
-            }
-
             int preferredGroup = 1 - lastStartedGaitGroup;
 
-            if (TryStartGaitGroup(preferredGroup))
+            if (CanStartGaitGroup(preferredGroup, hasSteppingLegs) && TryStartGaitGroup(preferredGroup))
             {
                 lastStartedGaitGroup = preferredGroup;
                 return;
@@ -94,7 +90,7 @@ namespace Pet.Gameplay
 
             int alternateGroup = 1 - preferredGroup;
 
-            if (TryStartGaitGroup(alternateGroup))
+            if (CanStartGaitGroup(alternateGroup, hasSteppingLegs) && TryStartGaitGroup(alternateGroup))
             {
                 lastStartedGaitGroup = alternateGroup;
             }
@@ -120,19 +116,20 @@ namespace Pet.Gameplay
             return legs[legIndex].IsStepping;
         }
 
-        public bool TryGetSupport(int legIndex, out SpiderLegSurfaceContact support)
+        internal bool TryGetSupport(int legIndex, out SpiderLegSurfaceContact support)
         {
             SpiderLegBinding leg = legs[legIndex];
             support = new SpiderLegSurfaceContact(leg.SupportCollider, leg.SupportPoint, leg.SupportNormal, 0f);
             return leg.HasSupport;
         }
 
-        private void InitializeLeg(SpiderLegBinding leg)
+        private void InitializeLeg(SpiderLegBinding leg, int legIndex)
         {
             leg.RestPositionLocal = transform.InverseTransformPoint(leg.Target.position);
             leg.DesiredPosition = transform.TransformPoint(leg.RestPositionLocal);
             leg.StepStartNormal = transform.up;
-            leg.NextSupportSearchTime = Time.time;
+            leg.NextSupportSearchTime = Time.time +
+                                        config.LegUngroundedResampleInterval * legIndex / Mathf.Max(1, legs.Length);
 
             leg.MaxReach = Mathf.Min(CalculateChainReach(leg), config.LegMaxReach);
 
@@ -172,6 +169,32 @@ namespace Pet.Gameplay
             }
 
             return startedStep;
+        }
+
+        private bool CanStartGaitGroup(int gaitGroup, bool hasSteppingLegs)
+        {
+            foreach (SpiderLegBinding leg in legs)
+            {
+                if (leg.GaitGroup == gaitGroup && leg.IsStepping)
+                {
+                    return false;
+                }
+            }
+
+            if (!hasSteppingLegs)
+            {
+                return true;
+            }
+
+            foreach (SpiderLegBinding leg in legs)
+            {
+                if (leg.IsStepping && leg.StepProgress >= config.LegGaitOverlapProgress)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void UpdateDesiredPosition(SpiderLegBinding leg, Vector3 stepDirection)
@@ -220,10 +243,7 @@ namespace Pet.Gameplay
                 return false;
             }
 
-            BeginStep(leg, support.Point + support.Normal * config.LegFootOffset, support.Normal);
-            leg.SupportPoint = support.Point;
-            leg.SupportNormal = support.Normal;
-            leg.SupportCollider = support.Collider;
+            BeginStep(leg, support);
             leg.HasLoggedSupportSearchFailure = false;
             LogLegs(
                 $"Started step for {leg.Root.name}. desiredDistance=" +
@@ -233,31 +253,39 @@ namespace Pet.Gameplay
             return true;
         }
 
-        private void BeginStep(SpiderLegBinding leg, Vector3 targetPosition, Vector3 targetNormal)
+        private void BeginStep(SpiderLegBinding leg, SpiderLegSurfaceContact target)
         {
             leg.StepStartPosition = leg.Target.position;
             leg.StepStartNormal = leg.HasSupport ? leg.SupportNormal : transform.up;
             leg.StepStartRotation = leg.Target.rotation;
-            leg.StepTargetRotation = CalculateTargetRotation(targetNormal);
+            leg.StepTargetPoint = target.Point;
+            leg.StepTargetNormal = target.Normal;
+            leg.StepTargetCollider = target.Collider;
             leg.StepProgress = 0f;
             leg.IsStepping = true;
-
-            leg.SupportPoint = targetPosition - targetNormal * config.LegFootOffset;
-            leg.SupportNormal = targetNormal;
         }
 
         private void AdvanceStep(SpiderLegBinding leg, float deltaTime)
         {
             leg.StepProgress = Mathf.Min(1f, leg.StepProgress + deltaTime / config.LegStepDuration);
             float arcHeight = config.LegStepHeight * 4f * leg.StepProgress * (1f - leg.StepProgress);
-            Vector3 normal = Vector3.Slerp(leg.StepStartNormal, leg.SupportNormal, leg.StepProgress).normalized;
-            Vector3 position = Vector3.Lerp(leg.StepStartPosition, leg.SupportPoint + leg.SupportNormal * config.LegFootOffset, leg.StepProgress);
-            Quaternion rotation = Quaternion.Slerp(leg.StepStartRotation, leg.StepTargetRotation, leg.StepProgress);
+            Vector3 normal = Vector3.Slerp(leg.StepStartNormal, leg.StepTargetNormal, leg.StepProgress).normalized;
+            Vector3 position = Vector3.Lerp(
+                leg.StepStartPosition,
+                leg.StepTargetPoint + leg.StepTargetNormal * config.LegFootOffset,
+                leg.StepProgress);
+            Quaternion rotation = Quaternion.Slerp(
+                leg.StepStartRotation,
+                CalculateTargetRotation(leg.StepTargetNormal),
+                leg.StepProgress);
             leg.Target.SetPositionAndRotation(position + normal * arcHeight, rotation);
 
             if (leg.StepProgress >= 1f)
             {
                 leg.IsStepping = false;
+                leg.SupportPoint = leg.StepTargetPoint;
+                leg.SupportNormal = leg.StepTargetNormal;
+                leg.SupportCollider = leg.StepTargetCollider;
             }
         }
 
@@ -308,19 +336,29 @@ namespace Pet.Gameplay
             return Vector3.Distance(leg.Root.position, supportTargetPosition) <= leg.MaxReach;
         }
 
+        private void BeginRetraction()
+        {
+            foreach (SpiderLegBinding leg in legs)
+            {
+                leg.RetractStartPosition = leg.Target.position;
+                leg.RetractStartRotation = leg.Target.rotation;
+                leg.RetractProgress = 0f;
+                leg.IsStepping = false;
+                leg.SupportCollider = null;
+            }
+        }
+
         private void RetractLegs(float deltaTime)
         {
-            float interpolation = Mathf.Clamp01(deltaTime / config.LegStepDuration);
             Quaternion targetRotation = CalculateTargetRotation(transform.up);
 
             foreach (SpiderLegBinding leg in legs)
             {
                 UpdateDesiredPosition(leg, Vector3.zero);
-                leg.IsStepping = false;
-                leg.SupportCollider = null;
+                leg.RetractProgress = Mathf.Min(1f, leg.RetractProgress + deltaTime / config.LegStepDuration);
                 leg.Target.SetPositionAndRotation(
-                    Vector3.Lerp(leg.Target.position, leg.DesiredPosition, interpolation),
-                    Quaternion.Slerp(leg.Target.rotation, targetRotation, interpolation));
+                    Vector3.Lerp(leg.RetractStartPosition, leg.DesiredPosition, leg.RetractProgress),
+                    Quaternion.Slerp(leg.RetractStartRotation, targetRotation, leg.RetractProgress));
             }
         }
 

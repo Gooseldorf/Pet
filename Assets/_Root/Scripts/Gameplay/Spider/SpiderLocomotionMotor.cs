@@ -4,7 +4,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Pet.Gameplay
 {
-    public sealed class SpiderLocomotionMotor
+    internal sealed class SpiderLocomotionMotor
     {
         private const float MIN_VECTOR_SQR_MAGNITUDE = 0.000001f;
 
@@ -222,7 +222,7 @@ namespace Pet.Gameplay
             float deltaTime)
         {
             Vector3 bodyCenter = bodyCollider.transform.TransformPoint(bodyCollider.center);
-            float bodyRadius = CalculateWorldRadius();
+            float bodyRadius = SpiderColliderMetrics.CalculateWorldRadius(bodyCollider);
             float currentOffset = Vector3.Dot(bodyCenter - surface.Point, surface.Normal) - bodyRadius;
             float offsetError = config.SurfaceHoverOffset - currentOffset;
             float targetNormalVelocity = Mathf.Abs(offsetError) <= config.AdhesionDeadZone
@@ -267,13 +267,6 @@ namespace Pet.Gameplay
         {
             bodyRigidbody.angularVelocity = Vector3.zero;
             bodyRigidbody.MoveRotation(rotation);
-        }
-
-        private float CalculateWorldRadius()
-        {
-            Vector3 scale = bodyCollider.transform.lossyScale;
-            float largestScale = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
-            return bodyCollider.radius * largestScale;
         }
 
         [Conditional("UNITY_EDITOR")]

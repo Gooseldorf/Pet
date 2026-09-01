@@ -32,10 +32,15 @@ MonoBehaviour:
   airborneGravity: 18
   jumpSpeed: 5
   airControlCoefficient: 0.5
-  legSearchRadius: 0.2
+  legSearchRadius: 0.3
   legMaxReach: 0.8
+  legReachMargin: 0.08
   legStepDistance: 0.3
-  legStepHeight: 0.2
-  legStepDuration: 0.02
+  legStepForwardDistance: 0.1
+  legStepHeight: 0.3
+  legStepDuration: 0.05
   legFootOffset: 0.015
-  legUngroundedResampleInterval: 0.25
+  legSurfaceContinuationAngle: 45
+  legSurfaceSwitchHysteresis: 0.03
+  legTargetClearanceRadius: 0.005
+  legUngroundedResampleInterval: 0.15

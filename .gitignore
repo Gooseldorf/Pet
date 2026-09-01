@@ -45,6 +45,7 @@
 # Local IDE and OpenCode workspace state
 .idea/
 /.artifacts/
+/.opencode/handoff/
 /.opencode/node_modules/
 /.opencode/package.json
 /.opencode/package-lock.json

@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Pet.Input;
 using Pet;
+using UnityEngine;
 
 namespace Pet.Gameplay
 {
@@ -39,6 +40,8 @@ namespace Pet.Gameplay
             inputActionsProvider.SetEnabledMaps(InputMapKind.PlayerAndUI);
             uiGameplayController.Initialize();
             await gameplayHudController.ShowAsync(cancellation);
+            
+            Debug.Log("Gameplay Initialized");
         }
     }
 }

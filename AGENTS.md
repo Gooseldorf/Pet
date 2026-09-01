@@ -40,3 +40,9 @@
 - Run the narrowest deterministic check available. For documentation, skills, or agent instructions, run `powershell -ExecutionPolicy Bypass -File tools/validate.ps1 -Mode Context`.
 - Supported automated Unity validation is not yet available. Do not present generated project files, archived logs, or an unrun Unity command as validation.
 - Before completion, inspect the diff for scope, accidental serialized asset changes, stale documentation impact, and conditional multiplayer implications. Report changed behavior, the exact validation command and result, and any Unity Editor follow-up.
+
+## Session Continuity
+
+- Before intentionally resetting an incomplete task, use `/checkpoint` to save the local handoff.
+- When the user explicitly asks to continue interrupted work, use `/resume-task` or inspect the local handoff before editing. The current repository state remains authoritative.
+- The handoff is local task state. Keep it concise and do not use it for unrelated requests.

@@ -8,6 +8,7 @@ namespace Pet.Gameplay
         [Header("Required References")]
         [SerializeField] private CinemachineCamera cinemachineCamera;
 
+        // Привязывает Cinemachine к авторским целям созданного паука, сохраняя камеру источником направления движения.
         public void Bind(SpiderPlayerController player)
         {
             cinemachineCamera.Follow = player.CameraFollowTarget;

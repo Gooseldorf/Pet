@@ -4,6 +4,7 @@ namespace Pet.Input
 {
     public readonly struct PlayerInputState
     {
+        // Создает неизменяемый снимок текущего ввода, из которого мотор паука берет ось движения в физическом тике.
         public PlayerInputState(Vector2 move, Vector2 look, bool sprintHeld, bool crouchHeld)
         {
             Move = move;

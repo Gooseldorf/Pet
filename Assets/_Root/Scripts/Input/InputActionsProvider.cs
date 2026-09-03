@@ -7,6 +7,7 @@ namespace Pet.Input
     {
         private readonly InputSystem_Actions actions;
 
+        // Создает сгенерированный набор действий Input System, поставляющий ось движения и действие прыжка пауку.
         public InputActionsProvider()
         {
             actions = new InputSystem_Actions();
@@ -30,6 +31,7 @@ namespace Pet.Input
         public InputAction Click => actions.UI.Click;
         public InputAction ScrollWheel => actions.UI.ScrollWheel;
 
+        // Включает только нужные карты ввода, чтобы команды движения паука не обрабатывались при активном UI.
         public void SetEnabledMaps(InputMapKind mapKind)
         {
             actions.Player.Disable();
@@ -50,6 +52,7 @@ namespace Pet.Input
             }
         }
 
+        // Отключает карты и освобождает сгенерированные действия Input System при завершении приложения.
         public void Dispose()
         {
             actions.Player.Disable();

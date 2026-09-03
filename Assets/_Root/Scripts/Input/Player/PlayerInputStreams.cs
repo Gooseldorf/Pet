@@ -23,6 +23,7 @@ namespace Pet.Input
         private readonly Subject<Unit> previousPressed = new();
         private readonly Subject<Unit> nextPressed = new();
 
+        // Подписывается на действия игрока и превращает ввод движения и прыжка в потоки, которые читает контроллер паука.
         public PlayerInputStreams(InputActionsProvider inputActionsProvider)
         {
             BindPlayerActions(inputActionsProvider, disposeCancellationTokenSource.Token);
@@ -42,9 +43,10 @@ namespace Pet.Input
         public Observable<Unit> PreviousPressed => previousPressed;
         public Observable<Unit> NextPressed => nextPressed;
 
+        // Связывает действия Input System с текущим состоянием осей и одноразовыми событиями, чтобы движение читало актуальный ввод в своем тике.
         private void BindPlayerActions(InputActionsProvider inputActionsProvider, CancellationToken cancellationToken)
         {
-            // Axes stay as state so movement systems can pull the latest value when they tick.
+            // Оси хранятся как состояние, чтобы мотор движения мог получить последнее значение в физическом тике.
             subscriptions.Add(inputActionsProvider.Move
                 .PerformedAsObservable(cancellationToken)
                 .Subscribe(context => move.Value = context.ReadValue<Vector2>()));
@@ -61,7 +63,7 @@ namespace Pet.Input
                 .CanceledAsObservable(cancellationToken)
                 .Subscribe(_ => look.Value = Vector2.zero));
 
-            // Hold-style buttons publish state transitions so downstream code does not need callback bookkeeping.
+            // Удерживаемые кнопки публикуют изменения состояния, избавляя потребителей от собственной обработки callback-ов.
             subscriptions.Add(inputActionsProvider.Sprint
                 .StartedAsObservable(cancellationToken)
                 .Subscribe(_ => sprintHeld.Value = true));
@@ -78,7 +80,7 @@ namespace Pet.Input
                 .CanceledAsObservable(cancellationToken)
                 .Subscribe(_ => crouchHeld.Value = false));
 
-            // One-shot actions stay event-like so consumers can compose them without mutating shared state.
+            // Одноразовые действия остаются событиями, чтобы прыжок запускался без изменения общего состояния.
             subscriptions.Add(inputActionsProvider.Jump
                 .PerformedAsObservable(cancellationToken)
                 .Subscribe(_ => jumpPressed.OnNext(Unit.Default)));
@@ -104,6 +106,7 @@ namespace Pet.Input
                 .Subscribe(_ => nextPressed.OnNext(Unit.Default)));
         }
 
+        // Отменяет подписки и освобождает реактивные значения при завершении игры, предотвращая события после уничтожения потребителей.
         public void Dispose()
         {
             disposeCancellationTokenSource.Cancel();
